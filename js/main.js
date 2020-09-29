@@ -1,64 +1,74 @@
 'use strict';
-const MAP_WIDTH = 1200;
-const MAP_TOP = 130;
-const MAP_BOTTOM = 630;
-const PIN_WIDTH = 40;
-const PIN_HEIGHT = 40;
+const MapSize = {
+  MAP_WIDTH: 1200,
+  MAP_TOP: 130,
+  MAP_BOTTOM: 630
+};
+
+const PinSize = {
+  PIN_WIDTH: 50,
+  PIN_HEIGHT: 70
+};
+
+const Price = {
+  MIN: 1000,
+  MAX: 1000000
+};
+
 const AD_NUMBER = 8;
-const TYPES_DWELLING = [`palace`, `flat`, `house`, `bungalow`];
-const MIN_PRICE = 1000;
-const MAX_PRICE = 1000000;
+const HOUSING_TYPES = [`palace`, `flat`, `house`, `bungalow`];
+
 const ROOMS = [1, 2, 3];
 const GUESTS = [1, 2, 3];
-const HOURS = [`12:00`, `13:00`, `14:00`];
+const CHECK_INS = [`12:00`, `13:00`, `14:00`];
 const FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
 
-let pinTemplate = document.querySelector(`#pin`).content;
-let mapPin = pinTemplate.querySelector(`.map__pin`);
-let pinElement = document.querySelector(`.map`).querySelector(`.map__pins`);
-let cardTemplate = document.querySelector(`#card`).content;
-let cardElement = document.querySelector(`.map`);
+const pinTemplate = document.querySelector(`#pin`).content;
+const mapPin = pinTemplate.querySelector(`.map__pin`);
+const pinsContainer = document.querySelector(`.map`).querySelector(`.map__pins`);
+const cardTemplate = document.querySelector(`#card`).content;
+const cardElement = document.querySelector(`.map`);
 
 
-let getRandomNumber = function (min, max) {
+const getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 };
 
-let getRandomValueFromArray = function (arr) {
-  return arr[Math.floor(arr.length * Math.random())];
+const getRandomArrayValue = function (items) {
+  return items[Math.floor(items.length * Math.random())];
 };
 
-let generateFeautures = function () {
-  let numberOfFeautures = getRandomNumber(1, FEATURES.length);
-  let features = [];
-  let feature = getRandomValueFromArray(FEATURES);
-  for (let i = 0; i < numberOfFeautures; i++) {
-    while (features.includes(feature)) {
-      feature = getRandomValueFromArray(FEATURES);
+const getFeautures = function () {
+  const feauturesCount = getRandomNumber(1, FEATURES.length);
+  const features = [];
+  const feature = getRandomArrayValue(FEATURES);
+  for (let i = 0; i < feauturesCount; i++) {
+    if (features.includes(feature)) {
+      feature = getRandomArrayValue(FEATURES);
+      features.push(feature);
     }
-    features[i] = feature;
   }
   return features;
 };
 
-let createAdData = function (numberOfData) {
-  let locationY = getRandomNumber(MAP_TOP, MAP_BOTTOM);
-  let locationX = getRandomNumber(0, MAP_WIDTH);
-  let adData = {
+const getAd = function (adsAmount) {
+  const locationX = getRandomNumber(0, MapSize.MAP_WIDTH);
+  const locationY = getRandomNumber(MapSize.MAP_TOP, MapSize.MAP_BOTTOM);
+  const ad = {
     author: {
-      avatar: `img/avatars/user0` + (numberOfData + 1) + `.png`
+      avatar: `img/avatars/user0` + (adsAmount + 1) + `.png`
     },
     offer: {
       title: `Заголовок`,
       address: locationX + `,` + locationY,
-      price: getRandomNumber(MIN_PRICE, MAX_PRICE) + ` р`,
-      type: getRandomValueFromArray(TYPES_DWELLING),
-      rooms: getRandomValueFromArray(ROOMS),
-      guests: getRandomValueFromArray(GUESTS),
-      checkin: getRandomValueFromArray(HOURS),
-      checkout: getRandomValueFromArray(HOURS),
-      features: generateFeautures(),
+      price: getRandomNumber(Price.MIN, Price.MAX) + ` р`,
+      type: getRandomArrayValue(HOUSING_TYPES),
+      rooms: getRandomArrayValue(ROOMS),
+      guests: getRandomArrayValue(GUESTS),
+      checkin: getRandomArrayValue(CHECK_INS),
+      checkout: getRandomArrayValue(CHECK_INS),
+      features: getFeautures(),
       description: `Строка с описанием`,
       photos: PHOTOS
     },
@@ -67,51 +77,53 @@ let createAdData = function (numberOfData) {
       y: locationY
     }
   };
-  return adData;
+  return ad;
 };
 
-let getListOfAd = function () {
-  let ads = [];
-  for (let i = 0; i < AD_NUMBER; i++) {
-    ads[i] = createAdData(i);
+const getAds = function (adsCount) {
+  const ads = [];
+  for (let i = 0; i < adsCount; i++) {
+    ads.push(getAd(i));
   }
   return ads;
 };
 
-let createPinTemplate = function (adData) {
-  let templatePin = mapPin.cloneNode(true);
-  let pinX = adData.locationX - (PIN_WIDTH / 2);
-  let pinY = adData.locationY - PIN_HEIGHT;
-  templatePin.style.left = pinX + `px;`;
-  templatePin.style.top = pinY + `px;`;
-  templatePin.querySelector(`img`).src = adData.author.avatar;
-  templatePin.querySelector(`img`).alt = adData.offer.title;
+const createPin = function (ad) {
+  const pinsTemplate = mapPin.cloneNode(true);
+  const pinX = ad.location.x - (PinSize.PIN_WIDTH / 2);
+  const pinY = ad.location.y - PinSize.PIN_HEIGHT;
+  pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
+  pinsTemplate.querySelector(`img`).src = ad.author.avatar;
+  pinsTemplate.querySelector(`img`).alt = ad.offer.title;
 
-  return templatePin;
+  return pinsTemplate;
 };
 
-let renderMapPins = function (ads) {
-  let fragment = document.createDocumentFragment();
+const createPinFragment = function (ads) {
+  const fragment = document.createDocumentFragment();
 
   for (let i = 0; i < ads.length; i++) {
-    fragment.appendChild(createPinTemplate(ads[i]));
+    fragment.appendChild(createPin(ads[i]));
   }
-  pinElement.appendChild(fragment);
+  return fragment;
+};
+
+const renderPins = function () {
+  pinsContainer.appendChild(createPinFragment(ads));
 };
 
 
-function generatePhotos(photos) {
-  let imgTags = ``;
+function getPhotos(photos) {
+  const imgs = [];
   for (let i = 0; i < photos.length; i++) {
-    imgTags += `<img src="` + photos[i] + `"class="popup__photo" width="45" height = "40" alt = "Photo">`;
+    imgs.push(`<img src="` + photos[i] + `"class="popup__photo" width="45" height = "40" alt = "Photo">`);
   }
-  return imgTags;
+  return imgs;
 }
 
-let createAd = function (ad) {
-  let card = cardTemplate.cloneNode(true);
-  let title = card.querySelector(`.popup__title`);
-  title.textContent = ad.offer.title;
+const createCard = function (ad) {
+  const card = cardTemplate.cloneNode(true);
+  card.querySelector(`.popup__title`).textContent = ad.offer.title;
   card.querySelector(`.popup__text--address`).textContent = ad.offer.address;
   card.querySelector(`.popup__text--price`).textContent = ad.offer.price;
   card.querySelector(`.popup__type`).textContent = ad.offer.type;
@@ -119,23 +131,25 @@ let createAd = function (ad) {
   card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
   card.querySelector(`.popup__description`).textContent = ad.offer.description;
   card.querySelector(`.popup__avatar`).src = ad.author.avatar;
-  card.querySelector(`.popup__photos`).innerHTML = generatePhotos(ad.offer.photos);
+  card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
   return card;
 };
 
-let renderCards = function () {
-  let fragment = document.createDocumentFragment();
-  for (let i = 0; i < ads.length; i++) {
-    fragment.appendChild(createAd(ads[i]));
+const createCardFragment = function () {
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < 1; i++) {
+    fragment.appendChild(createCard(ads[i]));
   }
-  cardElement.insertBefore(fragment, cardElement.querySelector(`.map-filters__container`));
+  return fragment;
+};
+
+const renderCards = function () {
+  cardElement.insertBefore(createCardFragment(), cardElement.querySelector(`.map-filters__container`));
+
 };
 
 cardElement.classList.remove(`map--faded`);
 
-let ads = getListOfAd();
-renderMapPins(ads);
-let card = createAd(ads[0]);
-renderCards(card);
-
-
+const ads = getAds(AD_NUMBER);
+renderPins(ads);
+renderCards(createCard);

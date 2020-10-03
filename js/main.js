@@ -1,13 +1,13 @@
 'use strict';
 const MapSize = {
-  MAP_WIDTH: 1200,
-  MAP_TOP: 130,
-  MAP_BOTTOM: 630
+  WIDTH: 1200,
+  TOP: 130,
+  BOTTOM: 630
 };
 
 const PinSize = {
-  PIN_WIDTH: 50,
-  PIN_HEIGHT: 70
+  WIDTH: 50,
+  HEIGHT: 70
 };
 
 const Price = {
@@ -18,8 +18,10 @@ const Price = {
 const AD_NUMBER = 8;
 const HOUSING_TYPES = [`palace`, `flat`, `house`, `bungalow`];
 
-const ROOMS = [1, 2, 3];
-const GUESTS = [1, 2, 3];
+const ROOMS = [1, 2, 3, 100];
+const GUESTS = [1, 2, 3, 0];
+
+
 const CHECK_INS = [`12:00`, `13:00`, `14:00`];
 const FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
@@ -27,9 +29,45 @@ const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0
 const pinTemplate = document.querySelector(`#pin`).content;
 const mapPin = pinTemplate.querySelector(`.map__pin`);
 const pinsContainer = document.querySelector(`.map`).querySelector(`.map__pins`);
-const cardTemplate = document.querySelector(`#card`).content;
+// const cardTemplate = document.querySelector(`#card`).content;
 const cardElement = document.querySelector(`.map`);
+const adForm = document.querySelector(`.ad-form`);
+const adFormElements = adForm.querySelectorAll(`fieldset`);
+const mapFiltersForm = document.querySelector(`.map__filters`);
+const mapFilters = mapFiltersForm.querySelectorAll(`.map__filter`);
+const mainPin = pinsContainer.querySelector(`.map__pin--main`);
 
+let isActivate = false;
+
+const KeyCode = {
+  ENTER: `Enter`,
+  ESCAPE: `Escape`
+};
+
+const setFormAttribute = function (array, boolean) {
+  array.forEach(function (element) {
+    element.setAttribute(`disabled`, boolean);
+  });
+};
+
+const deleteFormAttribute = function (array) {
+  array.forEach(function (element) {
+    element.removeAttribute(`disabled`, `disabled`);
+  });
+};
+
+const changeAttributeState = function () {
+  if (!isActivate) {
+    setFormAttribute(mapFilters, true);
+    setFormAttribute(adFormElements, true);
+  } else {
+    deleteFormAttribute(mapFilters);
+    deleteFormAttribute(adFormElements);
+    cardElement.classList.remove(`map--faded`);
+    mapFiltersForm.classList.remove(`map__filters--disabled`);
+    adForm.classList.remove(`ad-form--disabled`);
+  }
+};
 
 const getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -53,8 +91,8 @@ const getFeautures = function () {
 };
 
 const getAd = function (adsAmount) {
-  const locationX = getRandomNumber(0, MapSize.MAP_WIDTH);
-  const locationY = getRandomNumber(MapSize.MAP_TOP, MapSize.MAP_BOTTOM);
+  const locationX = getRandomNumber(0, MapSize.WIDTH);
+  const locationY = getRandomNumber(MapSize.TOP, MapSize.BOTTOM);
   const ad = {
     author: {
       avatar: `img/avatars/user0` + (adsAmount + 1) + `.png`
@@ -90,8 +128,8 @@ const getAds = function (adsCount) {
 
 const createPin = function (ad) {
   const pinsTemplate = mapPin.cloneNode(true);
-  const pinX = ad.location.x - (PinSize.PIN_WIDTH / 2);
-  const pinY = ad.location.y - PinSize.PIN_HEIGHT;
+  const pinX = ad.location.x - (PinSize.WIDTH / 2);
+  const pinY = ad.location.y - PinSize.HEIGHT;
   pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
   pinsTemplate.querySelector(`img`).src = ad.author.avatar;
   pinsTemplate.querySelector(`img`).alt = ad.offer.title;
@@ -113,6 +151,8 @@ const renderPins = function () {
 };
 
 
+/*
+
 function getPhotos(photos) {
   const imgs = [];
   for (let i = 0; i < photos.length; i++) {
@@ -120,7 +160,6 @@ function getPhotos(photos) {
   }
   return imgs;
 }
-
 const createCard = function (ad) {
   const card = cardTemplate.cloneNode(true);
   card.querySelector(`.popup__title`).textContent = ad.offer.title;
@@ -135,21 +174,81 @@ const createCard = function (ad) {
   return card;
 };
 
-const createCardFragment = function () {
+const renderCards = function () {\
+  const createCardFragment = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < 1; i++) {
     fragment.appendChild(createCard(ads[i]));
   }
   return fragment;
 };
-
-const renderCards = function () {
   cardElement.insertBefore(createCardFragment(), cardElement.querySelector(`.map-filters__container`));
 
 };
+*/
+const roomNumber = document.querySelector(`#room_number`);
+const capacity = document.querySelector(`#capacity`);
+capacity.value = roomNumber.value;
 
-cardElement.classList.remove(`map--faded`);
+const disableOptions = function () {
+  for (let i = 0; i < capacity.options.length; i++) {
+    capacity.options[i].setAttribute(`disabled`, `disabled`);
+  }
+};
+
+const disableOption = function (index) {
+  capacity.options[index].setAttribute(`disabled`, `disabled`);
+};
+
+const resetCapacity = function () {
+  for (let i = 0; i < capacity.options.length; i++) {
+    capacity.options[i].removeAttribute(`disabled`, `disabled`);
+  }
+};
+
+const syncRoomsGuests = function () {
+  roomNumber.addEventListener(`change`, function () {
+    resetCapacity();
+    if (roomNumber.value === `100`) {
+      capacity.value = 0;
+      disableOptions();
+    } else if (roomNumber.value === `1`) {
+      capacity.value = 1;
+      disableOptions();
+    } else if (roomNumber.value === `2`) {
+      capacity.value = 2;
+      disableOption(0);
+      disableOption(3);
+    } else if (roomNumber.value === `3`) {
+      capacity.value = 3;
+      disableOption(3);
+    }
+  });
+};
+
+const setAddress = function (pin) {
+  const addressInput = adForm.querySelector(`#address`);
+  addressInput.value = pin.offsetTop + PinSize.HEIGHT + `,` + (pin.offsetLeft + (PinSize.WIDTH / 2));
+  addressInput.textContent = addressInput.value;
+};
 
 const ads = getAds(AD_NUMBER);
-renderPins(ads);
-renderCards(createCard);
+const activateMap = function () {
+  isActivate = true;
+  changeAttributeState();
+  renderPins(ads);
+  setAddress(mainPin);
+  syncRoomsGuests();
+};
+
+mainPin.addEventListener(`mousedown`, function (evt) {
+  if (evt.which === 1) {
+    activateMap();
+  }
+});
+
+mainPin.addEventListener(`keydown`, function (evt) {
+  if (evt.code === KeyCode.ENTER) {
+    activateMap();
+  }
+});

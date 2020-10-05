@@ -15,13 +15,23 @@ const Price = {
   MAX: 1000000
 };
 
-const AD_NUMBER = 8;
+const KeyCode = {
+  ENTER: `Enter`,
+  ESCAPE: `Escape`
+};
+
+let VALIDITY_TEXT = {
+  1: `1 комната - для 1 гостя`,
+  2: ` 2 комнаты  - для 2 гостей или 1 гостя`,
+  3: `3 комнаты  - для 3 гостей, 2 гостей или 1 гостя`,
+  100: `100 комнат не для гостей `,
+
+};
+const LEFT_MOUSE_CLICK = 1;
+const ADS_NUMBER = 8;
 const HOUSING_TYPES = [`palace`, `flat`, `house`, `bungalow`];
-
 const ROOMS = [1, 2, 3, 100];
-const GUESTS = [1, 2, 3, 0];
-
-
+const GUESTS = [1, 2, 3];
 const CHECK_INS = [`12:00`, `13:00`, `14:00`];
 const FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
@@ -32,42 +42,44 @@ const pinsContainer = document.querySelector(`.map`).querySelector(`.map__pins`)
 // const cardTemplate = document.querySelector(`#card`).content;
 const cardElement = document.querySelector(`.map`);
 const adForm = document.querySelector(`.ad-form`);
-const adFormElements = adForm.querySelectorAll(`fieldset`);
 const mapFiltersForm = document.querySelector(`.map__filters`);
-const mapFilters = mapFiltersForm.querySelectorAll(`.map__filter`);
 const mainPin = pinsContainer.querySelector(`.map__pin--main`);
+const roomNumberSelect = document.querySelector(`#room_number`);
+const capacitySelect = document.querySelector(`#capacity`);
+let roomsNumber = roomNumberSelect.value;
+let capacityNumber = capacitySelect.value;
+const mapFiltersSelects = mapFiltersForm.querySelectorAll(`select`);
+const adFormSelects = adForm.querySelectorAll(`select`);
+const fieldsets = adForm.querySelectorAll(`.fieldset`);
+const inputs = adForm.querySelectorAll(`input`);
 
-let isActivate = false;
 
-const KeyCode = {
-  ENTER: `Enter`,
-  ESCAPE: `Escape`
-};
-
-const setFormAttribute = function (array, boolean) {
-  array.forEach(function (element) {
-    element.setAttribute(`disabled`, boolean);
-  });
-};
-
-const deleteFormAttribute = function (array) {
-  array.forEach(function (element) {
-    element.removeAttribute(`disabled`, `disabled`);
-  });
-};
-
-const changeAttributeState = function () {
-  if (!isActivate) {
-    setFormAttribute(mapFilters, true);
-    setFormAttribute(adFormElements, true);
-  } else {
-    deleteFormAttribute(mapFilters);
-    deleteFormAttribute(adFormElements);
-    cardElement.classList.remove(`map--faded`);
-    mapFiltersForm.classList.remove(`map__filters--disabled`);
-    adForm.classList.remove(`ad-form--disabled`);
+const disableFormControls = function (controls) {
+  for (let i = 0; i < controls.length; i++) {
+    controls[i].setAttribute(`disabled`, `disabled`);
   }
+  mapFiltersForm.setAttribute(`disabled`, `disabled`);
 };
+
+const deleteDisableControls = function (controls) {
+  for (let i = 0; i < controls.length; i++) {
+    controls[i].removeAttribute(`disabled`, `disabled`);
+  }
+  mapFiltersForm.removeAttribute(`disabled`, `disabled`);
+};
+
+
+const setAddress = function (pin) {
+  const address = adForm.querySelector(`#address`);
+  address.value = pin.offsetTop + PinSize.HEIGHT + `,` + (pin.offsetLeft + (PinSize.WIDTH / 2));
+};
+
+
+disableFormControls(fieldsets);
+disableFormControls(inputs);
+disableFormControls(adFormSelects);
+disableFormControls(mapFiltersSelects);
+setAddress(mainPin);
 
 const getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -150,7 +162,6 @@ const renderPins = function () {
   pinsContainer.appendChild(createPinFragment(ads));
 };
 
-
 /*
 
 function getPhotos(photos) {
@@ -166,7 +177,7 @@ const createCard = function (ad) {
   card.querySelector(`.popup__text--address`).textContent = ad.offer.address;
   card.querySelector(`.popup__text--price`).textContent = ad.offer.price;
   card.querySelector(`.popup__type`).textContent = ad.offer.type;
-  card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
+  card.querySelector(`.popup__text--capacitySelect`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
   card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
   card.querySelector(`.popup__description`).textContent = ad.offer.description;
   card.querySelector(`.popup__avatar`).src = ad.author.avatar;
@@ -186,63 +197,42 @@ const renderCards = function () {\
 
 };
 */
-const roomNumber = document.querySelector(`#room_number`);
-const capacity = document.querySelector(`#capacity`);
-capacity.value = roomNumber.value;
 
-const disableOptions = function () {
-  for (let i = 0; i < capacity.options.length; i++) {
-    capacity.options[i].setAttribute(`disabled`, `disabled`);
+const syncRoomsGuests = function (rooms, guests) {
+  if ((guests > rooms && rooms !== 100) || (rooms !== 100 && guests === 0) || (rooms === 100 && guests > 0)) {
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+  } else {
+    capacitySelect.setCustomValidity(``);
   }
 };
 
-const disableOption = function (index) {
-  capacity.options[index].setAttribute(`disabled`, `disabled`);
-};
+roomNumberSelect.addEventListener(`change`, function () {
+  roomsNumber = roomNumberSelect.value;
+  syncRoomsGuests(roomsNumber, capacityNumber);
+});
 
-const resetCapacity = function () {
-  for (let i = 0; i < capacity.options.length; i++) {
-    capacity.options[i].removeAttribute(`disabled`, `disabled`);
-  }
-};
+capacitySelect.addEventListener(`change`, function () {
+  capacityNumber = capacitySelect.value;
+  capacitySelect.setCustomValidity(``);
+  syncRoomsGuests(roomsNumber, capacityNumber);
+});
 
-const syncRoomsGuests = function () {
-  roomNumber.addEventListener(`change`, function () {
-    resetCapacity();
-    if (roomNumber.value === `100`) {
-      capacity.value = 0;
-      disableOptions();
-    } else if (roomNumber.value === `1`) {
-      capacity.value = 1;
-      disableOptions();
-    } else if (roomNumber.value === `2`) {
-      capacity.value = 2;
-      disableOption(0);
-      disableOption(3);
-    } else if (roomNumber.value === `3`) {
-      capacity.value = 3;
-      disableOption(3);
-    }
-  });
-};
 
-const setAddress = function (pin) {
-  const addressInput = adForm.querySelector(`#address`);
-  addressInput.value = pin.offsetTop + PinSize.HEIGHT + `,` + (pin.offsetLeft + (PinSize.WIDTH / 2));
-  addressInput.textContent = addressInput.value;
-};
-
-const ads = getAds(AD_NUMBER);
+const ads = getAds(ADS_NUMBER);
 const activateMap = function () {
-  isActivate = true;
-  changeAttributeState();
+  cardElement.classList.remove(`map--faded`);
+  mapFiltersForm.classList.remove(`map__filters--disabled`);
+  adForm.classList.remove(`ad-form--disabled`);
+  deleteDisableControls(fieldsets);
+  deleteDisableControls(inputs);
+  deleteDisableControls(adFormSelects);
+  deleteDisableControls(mapFiltersSelects);
   renderPins(ads);
-  setAddress(mainPin);
-  syncRoomsGuests();
 };
+
 
 mainPin.addEventListener(`mousedown`, function (evt) {
-  if (evt.which === 1) {
+  if (evt.which === LEFT_MOUSE_CLICK) {
     activateMap();
   }
 });

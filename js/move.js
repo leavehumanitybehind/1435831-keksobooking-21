@@ -1,9 +1,9 @@
 "use strict";
 (function () {
 
-  const mainPin = document.querySelector(`.map__pin--main`);
 
-  mainPin.addEventListener(`mousedown`, function (evt) {
+
+  window.pin.mainPin.addEventListener(`mousedown`, function (evt) {
     evt.preventDefault();
 
     let startCoords = {
@@ -29,8 +29,8 @@
         y: moveEvt.clientY
       };
 
-      mainPin.style.top = (mainPin.offsetTop - shift.y) + `px`;
-      mainPin.style.left = (mainPin.offsetLeft - shift.x) + `px`;
+      window.pin.mainPin.style.top = (mainPin.offsetTop - shift.y) + `px`;
+      window.pin.mainPin.style.left = (mainPin.offsetLeft - shift.x) + `px`;
 
     };
 
@@ -43,9 +43,9 @@
       if (dragged) {
         const onClickPreventDefault = function (clickEvt) {
           clickEvt.preventDefault();
-          mainPin.removeEventListener(`click`, onClickPreventDefault);
+          window.pin.mainPin.removeEventListener(`click`, onClickPreventDefault);
         };
-        mainPin.addEventListener(`click`, onClickPreventDefault);
+        window.pin.mainPin.addEventListener(`click`, onClickPreventDefault);
       }
     };
 

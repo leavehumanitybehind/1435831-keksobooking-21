@@ -20,7 +20,7 @@ const KeyCode = {
   ESCAPE: `Escape`
 };
 
-let VALIDITY_TEXT = {
+const VALIDITY_TEXT = {
   1: `1 комната - для 1 гостя`,
   2: ` 2 комнаты  - для 2 гостей или 1 гостя`,
   3: `3 комнаты  - для 3 гостей, 2 гостей или 1 гостя`,

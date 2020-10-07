@@ -1,7 +1,7 @@
+/* eslint-disable object-shorthand */
 "use strict";
 
 (function () {
-
 
   const HOUSING_TYPES = [`palace`, `flat`, `house`, `bungalow`];
   const ROOMS = [1, 2, 3, 100];
@@ -16,11 +16,12 @@
     MAX: 1000000
   };
 
+  const ADS_NUMBER = 8;
 
   const getFeautures = function () {
     const feauturesCount = window.util.getRandomNumber(1, FEATURES.length);
     const features = [];
-    const feature = window.utilgetRandomArrayValue(FEATURES);
+    const feature = window.util.getRandomArrayValue(FEATURES);
     for (let i = 0; i < feauturesCount; i++) {
       if (features.includes(feature)) {
         feature = window.util.getRandomArrayValue(FEATURES);
@@ -39,8 +40,8 @@
   }
 
   const getAd = function (adsAmount) {
-    const locationX = window.util.getRandomNumber(0, MapSize.WIDTH);
-    const locationY = window.util.getRandomNumber(MapSize.TOP, MapSize.BOTTOM);
+    const locationX = window.util.getRandomNumber(0, window.map.MapSize.WIDTH);
+    const locationY = window.util.getRandomNumber(window.map.MapSize.TOP, window.map.MapSize.BOTTOM);
     const ad = {
       author: {
         avatar: `img/avatars/user0` + (adsAmount + 1) + `.png`
@@ -66,9 +67,9 @@
     return ad;
   };
 
-  const getAds = function (adsCount) {
+  const getAds = function () {
     const ads = [];
-    for (let i = 0; i < adsCount; i++) {
+    for (let i = 0; i < ADS_NUMBER; i++) {
       ads.push(getAd(i));
     }
     return ads;
@@ -78,7 +79,7 @@
     getFeautures: getFeautures,
     getPhotos: getPhotos,
     getAd: getAd,
-    getAds: getAds,
+    getAds: getAds
   };
 
 })();

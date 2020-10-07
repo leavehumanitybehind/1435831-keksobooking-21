@@ -1,9 +1,9 @@
 "use strict";
 (function () {
 
+  const mainPin = document.querySelector(`.map__pin--main`);
 
-
-  window.pin.mainPin.addEventListener(`mousedown`, function (evt) {
+  mainPin.addEventListener(`mousedown`, function (evt) {
     evt.preventDefault();
 
     let startCoords = {
@@ -29,8 +29,13 @@
         y: moveEvt.clientY
       };
 
-      window.pin.mainPin.style.top = (mainPin.offsetTop - shift.y) + `px`;
-      window.pin.mainPin.style.left = (mainPin.offsetLeft - shift.x) + `px`;
+      let currentCoords = {
+        x: mainPin.offsetTop  - shift.y,
+        y: mainPin.offsetLeft - shift.x
+      };
+
+      mainPin.style.top = currentCoords.x + `px`;
+      mainPin.style.left = currentCoords.y + `px`;
 
     };
 
@@ -43,14 +48,17 @@
       if (dragged) {
         const onClickPreventDefault = function (clickEvt) {
           clickEvt.preventDefault();
-          window.pin.mainPin.removeEventListener(`click`, onClickPreventDefault);
+          mainPin.removeEventListener(`click`, onClickPreventDefault);
         };
-        window.pin.mainPin.addEventListener(`click`, onClickPreventDefault);
+        mainPin.addEventListener(`click`, onClickPreventDefault);
       }
     };
 
     document.addEventListener(`mousemove`, onMouseMove);
     document.addEventListener(`mouseup`, onMouseUp);
   });
+
+
+
 
 })();

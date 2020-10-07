@@ -1,10 +1,9 @@
+/* eslint-disable object-shorthand */
 "use strict";
 
 (function () {
   const cardTemplate = document.querySelector(`#card`).content;
   const cardElement = document.querySelector(`.map`);
-
- 
 
   const createCard = function (ad) {
     const card = cardTemplate.cloneNode(true);
@@ -16,11 +15,13 @@
     card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
     card.querySelector(`.popup__description`).textContent = ad.offer.description;
     card.querySelector(`.popup__avatar`).src = ad.author.avatar;
-    card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
+    card.querySelector(`.popup__photos`).innerHTML = window.data.getPhotos(ad.offer.photos);
     return card;
   };
 
-  window.card.renderCards = function () {
+  const ads = window.data.getAds();
+
+  const renderCards = function () {
     const createCardFragment = function () {
       const fragment = document.createDocumentFragment();
       for (let i = 0; i < 1; i++) {
@@ -33,5 +34,12 @@
   };
 
 
+  window.card = {
+    renderCards: renderCards,
+    ads: ads,
+  };
+
+
 })();
+
 

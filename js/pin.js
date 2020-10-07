@@ -1,3 +1,4 @@
+/* eslint-disable object-shorthand */
 "use strict";
 
 (function () {
@@ -9,7 +10,6 @@
 
   const pinTemplate = document.querySelector(`#pin`).content;
   const mapPin = pinTemplate.querySelector(`.map__pin`);
-  const mainPin = document.querySelector(`.map__pin--main`);
   const pinsContainer = document.querySelector(`.map`).querySelector(`.map__pins`);
 
   const createPin = function (ad) {
@@ -33,19 +33,13 @@
   };
 
   const renderPins = function () {
-    pinsContainer.appendChild(createPinFragment(ads));
+    pinsContainer.appendChild(createPinFragment(window.card.ads));
   };
+
 
   window.pin = {
     renderPins: renderPins,
-    mainPin: mainPin
-
+    PinSize: PinSize
   };
 
 })();
-
-
-
-
-
-

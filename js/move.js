@@ -30,7 +30,7 @@
       };
 
       let currentCoords = {
-        x: mainPin.offsetTop  - shift.y,
+        x: mainPin.offsetTop - shift.y,
         y: mainPin.offsetLeft - shift.x
       };
 
@@ -57,8 +57,6 @@
     document.addEventListener(`mousemove`, onMouseMove);
     document.addEventListener(`mouseup`, onMouseUp);
   });
-
-
 
 
 })();

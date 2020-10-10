@@ -19,24 +19,17 @@
     return card;
   };
 
-  const ads = window.data.getAds();
-
-  const renderCards = function () {
-    const createCardFragment = function () {
-      const fragment = document.createDocumentFragment();
-      for (let i = 0; i < 1; i++) {
-        fragment.appendChild(createCard(ads[i]));
-      }
-      return fragment;
-    };
-    cardElement.insertBefore(createCardFragment(), cardElement.querySelector(`.map-filters__container`));
-
+  const renderCards = function (ad) {
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 1; i++) {
+      fragment.appendChild(createCard(ad[i]));
+    }
+    cardElement.insertBefore(fragment, cardElement.querySelector(`.map-filters__container`));
   };
 
 
   window.card = {
     renderCards: renderCards,
-    ads: ads,
   };
 
 

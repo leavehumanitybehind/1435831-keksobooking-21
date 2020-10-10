@@ -39,7 +39,6 @@
     enableControls(inputs);
     enableControls(adFormSelects);
     enableControls(mapFiltersSelects);
-    window.pin.renderPins(window.card.ads);
   };
 
   window.form = {

@@ -39,47 +39,18 @@
     return imgs;
   }
 
-  const getAd = function (adsAmount) {
-    const locationX = window.util.getRandomNumber(0, window.map.MapSize.WIDTH);
-    const locationY = window.util.getRandomNumber(window.map.MapSize.TOP, window.map.MapSize.BOTTOM);
-    const ad = {
-      author: {
-        avatar: `img/avatars/user0` + (adsAmount + 1) + `.png`
-      },
-      offer: {
-        title: `Заголовок`,
-        address: locationX + `,` + locationY,
-        price: window.util.getRandomNumber(Price.MIN, Price.MAX) + ` р`,
-        type: window.util.getRandomArrayValue(HOUSING_TYPES),
-        rooms: window.util.getRandomArrayValue(ROOMS),
-        guests: window.util.getRandomArrayValue(GUESTS),
-        checkin: window.util.getRandomArrayValue(CHECK_INS),
-        checkout: window.util.getRandomArrayValue(CHECK_INS),
-        features: getFeautures(),
-        description: `Строка с описанием`,
-        photos: PHOTOS
-      },
-      location: {
-        x: locationX,
-        y: locationY
-      }
-    };
-    return ad;
+  const getAds = function (ad) {
+    window.util.getRandomNumber(ad);
   };
 
-  const getAds = function () {
-    const ads = [];
-    for (let i = 0; i < ADS_NUMBER; i++) {
-      ads.push(getAd(i));
-    }
-    return ads;
-  };
+  const ads = getAds(ADS_NUMBER);
 
   window.data = {
+    getAds: getAds,
     getFeautures: getFeautures,
     getPhotos: getPhotos,
-    getAd: getAd,
-    getAds: getAds
+    ADS_NUMBER: ADS_NUMBER,
+    ads: ads
   };
 
 })();

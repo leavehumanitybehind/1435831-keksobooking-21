@@ -23,23 +23,38 @@
     return pinsTemplate;
   };
 
-  const createPinFragment = function (ads) {
+  const successHandler = function (ad) {
     const fragment = document.createDocumentFragment();
-
-    for (let i = 0; i < ads.length; i++) {
-      fragment.appendChild(createPin(ads[i]));
+    for (let i = 0; i < window.data.ADS_NUMBER; i++) {
+      fragment.appendChild(createPin(ad[i]));
     }
-    return fragment;
+    pinsContainer.appendChild(fragment);
   };
 
-  const renderPins = function () {
-    pinsContainer.appendChild(createPinFragment(window.card.ads));
+  const errorHandler = function (errorMessage) {
+    const node = document.createElement(`div`);
+    node.style = `z-index: 100; margin:auto; text-align: center; background-color: rgba(0,0,0, 0.4);`;
+    node.style.position = `absolute`;
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.width = '100%';
+    node.style.height = '100%';
+    node.style.fontSize = `60px`;
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement(`afterbegin`, node);
   };
+
+  mapPin.addEventListener('click', function () {
+    mapPin.classList.add('map__pin--active');
+    window.card.renderCards(window.data.ads);
+  });
 
 
   window.pin = {
-    renderPins: renderPins,
-    PinSize: PinSize
+    PinSize: PinSize,
+    successHandler: successHandler,
+    errorHandler: errorHandler
   };
 
 })();

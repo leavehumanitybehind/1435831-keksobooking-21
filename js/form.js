@@ -32,14 +32,13 @@
   };
 
   const activateMap = function () {
-    window.map.map.classList.remove(`map--faded`);
+    window.main.map.classList.remove(`map--faded`);
     mapFiltersForm.classList.remove(`map__filters--disabled`);
     adForm.classList.remove(`ad-form--disabled`);
     enableControls(fieldsets);
     enableControls(inputs);
     enableControls(adFormSelects);
     enableControls(mapFiltersSelects);
-    window.pin.renderPins(window.card.ads);
   };
 
   window.form = {

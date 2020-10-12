@@ -3,6 +3,7 @@
 
 (function () {
 
+
   const HOUSING_TYPES = [`palace`, `flat`, `house`, `bungalow`];
   const ROOMS = [1, 2, 3, 100];
   const GUESTS = [1, 2, 3, 0];
@@ -39,8 +40,13 @@
     return imgs;
   }
 
+
   const getAds = function (ad) {
-    window.util.getRandomNumber(ad);
+    const ads = [];
+    for (let i = 0; i < ADS_NUMBER; i++) {
+      ads.push(ad[i]);
+    }
+    return ads;
   };
 
   const ads = getAds(ADS_NUMBER);
@@ -49,6 +55,12 @@
     getAds: getAds,
     getFeautures: getFeautures,
     getPhotos: getPhotos,
+    HOUSING_TYPES: HOUSING_TYPES,
+    ROOMS: ROOMS,
+    GUESTS: GUESTS,
+    CHECK_INS: CHECK_INS,
+    PHOTOS: PHOTOS,
+    Price: Price,
     ADS_NUMBER: ADS_NUMBER,
     ads: ads
   };

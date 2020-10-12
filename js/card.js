@@ -2,8 +2,10 @@
 "use strict";
 
 (function () {
-  const cardTemplate = document.querySelector(`#card`).content;
+  const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
+  const cardPopup = cardTemplate.querySelectorAll(`.popup`);
   const cardElement = document.querySelector(`.map`);
+
 
   const createCard = function (ad) {
     const card = cardTemplate.cloneNode(true);
@@ -16,22 +18,17 @@
     card.querySelector(`.popup__description`).textContent = ad.offer.description;
     card.querySelector(`.popup__avatar`).src = ad.author.avatar;
     card.querySelector(`.popup__photos`).innerHTML = window.data.getPhotos(ad.offer.photos);
+    card.classList.add(`hidden`);
+    cardElement.insertBefore(card, cardElement.querySelector(`.map-filters__container`));
+
     return card;
   };
 
-  const renderCards = function (ad) {
-    const fragment = document.createDocumentFragment();
-    for (let i = 0; i < 1; i++) {
-      fragment.appendChild(createCard(ad[i]));
-    }
-    cardElement.insertBefore(fragment, cardElement.querySelector(`.map-filters__container`));
-  };
-
-
   window.card = {
-    renderCards: renderCards,
+    cardTemplate: cardTemplate,
+    createCard: createCard,
+    cardPopup: cardPopup
   };
-
 
 })();
 

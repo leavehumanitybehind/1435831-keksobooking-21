@@ -3,6 +3,24 @@
 (function () {
 
   const mainPin = document.querySelector(`.map__pin--main`);
+  const MapSize = {
+    WIDTH: 1200,
+    TOP: 130,
+    BOTTOM: 630
+  };
+
+  const map = document.querySelector(`.map`);
+
+  const pinContainerClickHandler = function (evt) {
+    const allPins = window.pin.pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+    const cardPopups = window.card.cardTemplate.querySelectorAll(`.popup`);
+    allPins.forEach(function (elem, i) {
+      if (evt.target.parentElement === elem || elem === document.activeElement) {
+        elem.classList.add(`map__pin--active`);
+        cardPopups[i].classList.remove(`hidden`);
+      }
+    });
+  };
 
   window.form.disableFormControls(window.form.fieldsets);
   window.form.disableFormControls(window.form.inputs);
@@ -26,8 +44,12 @@
 
   mainPin.addEventListener(`mousedown`, onMouseDown);
   mainPin.addEventListener(`keydown`, onKeyDown);
+  window.pin.mapPin.addEventListener(`click`, pinContainerClickHandler);
 
-
+  window.main = {
+    MapSize: MapSize,
+    map: map
+  };
 
 })();
 

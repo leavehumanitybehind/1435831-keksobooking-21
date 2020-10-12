@@ -19,7 +19,7 @@
     pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
     pinsTemplate.querySelector(`img`).src = ad.author.avatar;
     pinsTemplate.querySelector(`img`).alt = ad.offer.title;
-
+    window.card.createCard(ad);
     return pinsTemplate;
   };
 
@@ -37,22 +37,31 @@
     node.style.position = `absolute`;
     node.style.left = 0;
     node.style.right = 0;
-    node.style.width = '100%';
-    node.style.height = '100%';
+    node.style.width = `100%`;
+    node.style.height = `100%`;
+    node.style.paddingTop = `300px`;
     node.style.fontSize = `60px`;
+    node.style.fontWeight = `bold`;
+    node.style.color = `white`;
 
     node.textContent = errorMessage;
     document.body.insertAdjacentElement(`afterbegin`, node);
   };
 
-  mapPin.addEventListener('click', function () {
-    mapPin.classList.add('map__pin--active');
-    window.card.renderCards(window.data.ads);
-  });
+
+  const removePins = function () {
+    const pins = window.map.map.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+    pins.forEach(function (elem) {
+      elem.remove();
+    });
+  };
 
 
   window.pin = {
+    mapPin: mapPin,
+    pinsContainer: pinsContainer,
     PinSize: PinSize,
+    removePins: removePins,
     successHandler: successHandler,
     errorHandler: errorHandler
   };

@@ -11,6 +11,21 @@
   const pinTemplate = document.querySelector(`#pin`).content;
   const mapPin = pinTemplate.querySelector(`.map__pin`);
   const pinsContainer = document.querySelector(`.map`).querySelector(`.map__pins`);
+  let activePin = false;
+  let pins = [];
+
+  const activatePin = function (pin) {
+    if (activePin) {
+      disablePin();
+    }
+    activePin = pin;
+    activePin.classList.add(`map__pin--active`);
+  };
+
+  const disablePin = function () {
+    activePin.classList.remove(`map__pin--active`);
+  };
+
 
   const createPin = function (ad) {
     const pinsTemplate = mapPin.cloneNode(true);
@@ -19,15 +34,25 @@
     pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
     pinsTemplate.querySelector(`img`).src = ad.author.avatar;
     pinsTemplate.querySelector(`img`).alt = ad.offer.title;
-    window.card.createCard(ad);
+
+    pinsTemplate.addEventListener(`click`, function (evt) {
+      if (activePin !== evt.currentTarget) {
+        window.card.renderCard(ad);
+        activatePin(evt.currentTarget);
+      }
+    });
     return pinsTemplate;
   };
 
+
   const successHandler = function (ad) {
     const fragment = document.createDocumentFragment();
-    for (let i = 0; i < window.data.ADS_NUMBER; i++) {
-      fragment.appendChild(createPin(ad[i]));
-    }
+    ad.forEach(function (element) {
+      let pin = createPin(element);
+      fragment.appendChild(pin);
+      pins.push(pin);
+    });
+
     pinsContainer.appendChild(fragment);
   };
 
@@ -48,12 +73,12 @@
     document.body.insertAdjacentElement(`afterbegin`, node);
   };
 
-
   const removePins = function () {
-    const pins = window.map.map.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-    pins.forEach(function (elem) {
-      elem.remove();
+    pins.forEach(function (pin) {
+      pinsContainer.removeChild(pin);
     });
+
+    pins = [];
   };
 
 
@@ -61,9 +86,10 @@
     mapPin: mapPin,
     pinsContainer: pinsContainer,
     PinSize: PinSize,
-    removePins: removePins,
     successHandler: successHandler,
-    errorHandler: errorHandler
+    errorHandler: errorHandler,
+    disablePin: disablePin,
+    removePins: removePins
   };
 
 })();

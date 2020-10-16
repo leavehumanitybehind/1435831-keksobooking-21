@@ -17,8 +17,10 @@
     return items[Math.floor(items.length * Math.random())];
   };
 
-  const isEscKeyCode = function (evt) {
-    return evt.KeyCode === KeyCode.ESCAPE;
+  const isEscKeyCode = function (evt, cb) {
+    if (evt.KeyCode === KeyCode.ESCAPE) {
+      cb();
+    }
   };
 
   window.util = {

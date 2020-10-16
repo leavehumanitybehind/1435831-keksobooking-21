@@ -3,6 +3,11 @@
 
 (function () {
 
+  const MapSize = {
+    WIDTH: 1200,
+    TOP: 130,
+    BOTTOM: 630
+  };
 
   const HOUSING_TYPES = [`palace`, `flat`, `house`, `bungalow`];
   const ROOMS = [1, 2, 3, 100];
@@ -40,16 +45,42 @@
     return imgs;
   }
 
+  const getAd = function (adsAmount) {
+    const locationX = window.util.getRandomNumber(0, MapSize.WIDTH);
+    const locationY = window.util.getRandomNumber(MapSize.TOP, MapSize.BOTTOM);
+    const ad = {
+      author: {
+        avatar: `img/avatars/user0` + (adsAmount + 1) + `.png`
+      },
+      offer: {
+        title: `Заголовок`,
+        address: locationX + `,` + locationY,
+        price: window.util.getRandomNumber(Price.MIN, Price.MAX) + ` р`,
+        type: window.util.getRandomArrayValue(HOUSING_TYPES),
+        rooms: window.util.getRandomArrayValue(ROOMS),
+        guests: window.util.getRandomArrayValue(GUESTS),
+        checkin: window.util.getRandomArrayValue(CHECK_INS),
+        checkout: window.util.getRandomArrayValue(CHECK_INS),
+        features: getFeautures(),
+        description: `Строка с описанием`,
+        photos: PHOTOS
+      },
+      location: {
+        x: locationX,
+        y: locationY
+      }
+    };
+    return ad;
+  };
 
-  const getAds = function (ad) {
+  const getAds = function (num) {
     const ads = [];
-    for (let i = 0; i < ADS_NUMBER; i++) {
-      ads.push(ad[i]);
+    for (let i = 0; i < num; i++) {
+      ads.push(getAd(i));
     }
     return ads;
   };
 
-  const ads = getAds(ADS_NUMBER);
 
   window.data = {
     getAds: getAds,
@@ -62,7 +93,6 @@
     PHOTOS: PHOTOS,
     Price: Price,
     ADS_NUMBER: ADS_NUMBER,
-    ads: ads
   };
 
 })();

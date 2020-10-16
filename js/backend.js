@@ -1,39 +1,25 @@
 "use strict";
 
 (function () {
-  const URL = `https://21.javascript.pages.academy/keksobooking/data`;
+  const URL = {
+    load: `https://21.javascript.pages.academy/keksobooking/data`,
+    upload: `https://21.javascript.pages.academy/keksobooking/`
+  };
   const TIMEOUT_IN_MS = 10000;
+  const OK = 200;
 
-  const load = function (onSuccess, onError) {
+
+  const getXhr = function (onSuccess, onError) {
     let xhr = new XMLHttpRequest();
     xhr.responseType = `json`;
 
     xhr.addEventListener(`load`, function () {
-      let error;
-      switch (xhr.status) {
-        case 200:
-          onSuccess(xhr.response);
-          break;
-
-        case 400:
-          error = `Неверный запрос`;
-          break;
-        case 401:
-          error = `Пользователь не авторизован`;
-          break;
-        case 404:
-          error = `Ничего не найдено`;
-          break;
-
-        default:
-          error = `Cтатус ответа: : ` + xhr.status + ` ` + xhr.statusText;
-      }
-
-      if (error) {
-        onError(error);
+      if (xhr.status === OK) {
+        onSuccess(xhr.response);
+      } else {
+        onError('Статус ошибки: ' + xhr.status + xhr.statusText);
       }
     });
-
     xhr.addEventListener(`error`, function () {
       onError(`Произошла ошибка соединения`);
     });
@@ -43,13 +29,23 @@
 
     xhr.timeout = TIMEOUT_IN_MS;
 
-    xhr.open(`GET`, URL);
+    return xhr;
+  };
+
+  const upload = function (onSuccess, onError, data) {
+    const xhr = getXhr(onSuccess, onError);
+    xhr.open(`POST`, URL.upload);
+    xhr.send(data);
+  };
+
+  const load = function (onSuccess, onError) {
+    let xhr = getXhr(onSuccess, onError);
+    xhr.open(`GET`, URL.load);
     xhr.send();
   };
 
   window.backend = {
-    load: load
+    load: load,
+    upload: upload
   };
-
-
 })();

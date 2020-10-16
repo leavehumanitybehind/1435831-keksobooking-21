@@ -1,7 +1,40 @@
+/* eslint-disable object-shorthand */
 "use strict";
 (function () {
 
   const mainPin = document.querySelector(`.map__pin--main`);
+  const map = document.querySelector(`.map`);
+
+  const MainPin = {
+    WIDTH: 65,
+    HEIGHT: 84,
+    DEFAULT_X: `570px`,
+    DEFAULT_Y: `375px`,
+    y: {
+      MIN: 130,
+      MAX: 630
+    },
+    x: {
+      MIN: 0
+    }
+  };
+
+  const getMainPinCoords = function () {
+    let x = mainPin.offsetLeft + Math.floor(MainPin.WIDTH / 2);
+    let y = mainPin.offsetTop + MainPin.HEIGHT;
+
+    return {
+      x,
+      y
+    };
+  };
+
+  const setAddress = function () {
+    const mainPinCoords = getMainPinCoords();
+    const address = document.querySelector(`#address`);
+    address.value = mainPinCoords.x + `,` + mainPinCoords.y;
+  };
+
 
   mainPin.addEventListener(`mousedown`, function (evt) {
     evt.preventDefault();
@@ -11,8 +44,6 @@
       y: evt.clientY
     };
 
-    let dragged = false;
-
     const onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
 
@@ -21,42 +52,41 @@
         y: startCoords.y - moveEvt.clientY
       };
 
-      if (shift.x !== 0 || shift.y !== 0) {
-        dragged = true;
-      }
       startCoords = {
         x: moveEvt.clientX,
         y: moveEvt.clientY
       };
 
-      let currentCoords = {
-        x: mainPin.offsetTop - shift.y,
-        y: mainPin.offsetLeft - shift.x
-      };
+      let mainPinCoords = getMainPinCoords();
+      if (mainPinCoords.y - shift.y >= MainPin.y.MIN && mainPinCoords.y - shift.y <= MainPin.y.MAX) {
+        mainPin.style.top = mainPin.offsetTop - shift.y + `px`;
+      }
 
-      mainPin.style.top = currentCoords.x + `px`;
-      mainPin.style.left = currentCoords.y + `px`;
-
+      if (mainPinCoords.x - shift.x >= MainPin.x.MIN && mainPinCoords.x - shift.x <= map.offsetWidth) {
+        mainPin.style.left = mainPin.offsetLeft - shift.x + `px`;
+      }
+      setAddress(mainPinCoords);
     };
+
 
     const onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
       document.removeEventListener(`mousemove`, onMouseMove);
       document.removeEventListener(`mouseup`, onMouseUp);
-
-      if (dragged) {
-        const onClickPreventDefault = function (clickEvt) {
-          clickEvt.preventDefault();
-          mainPin.removeEventListener(`click`, onClickPreventDefault);
-        };
-        mainPin.addEventListener(`click`, onClickPreventDefault);
-      }
     };
 
     document.addEventListener(`mousemove`, onMouseMove);
     document.addEventListener(`mouseup`, onMouseUp);
   });
+
+  window.move = {
+    mainPin: mainPin,
+    MainPin: MainPin,
+    map: map,
+    getMainPinCoords: getMainPinCoords,
+    setAddress: setAddress
+  };
 
 
 })();

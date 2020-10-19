@@ -33,7 +33,6 @@ const filterAd = function (ad) {
     ((window.consts.houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === window.consts.houseGuestSelect.value));
 };
 
-
 const getFilteredPins = function (ads) {
   let similiars = ads.filter(filterAd);
   return similiars.slice(0, window.consts.MAX_PINS);

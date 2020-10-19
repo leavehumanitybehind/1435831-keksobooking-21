@@ -1,55 +1,49 @@
+/* eslint-disable object-shorthand */
 "use strict";
 
-(function () {
-  const URL = `https://21.javascript.pages.academy/keksobooking/data`;
-  const TIMEOUT_IN_MS = 10000;
+const URL_ADDRESS = {
+  load: `https://21.javascript.pages.academy/keksobooking/data`,
+  upload: `https://21.javascript.pages.academy/keksobooking/`
+};
+const OK = 200;
 
-  const load = function (onSuccess, onError) {
-    let xhr = new XMLHttpRequest();
-    xhr.responseType = `json`;
+const getXhr = function (onSuccess, onError) {
+  let xhr = new XMLHttpRequest();
+  xhr.responseType = `json`;
 
-    xhr.addEventListener(`load`, function () {
-      let error;
-      switch (xhr.status) {
-        case 200:
-          onSuccess(xhr.response);
-          break;
+  xhr.addEventListener(`load`, function () {
+    if (xhr.status === OK) {
+      onSuccess(xhr.response);
+    } else {
+      onError(`Статус ошибки: ` + xhr.status + xhr.statusText);
+    }
+  });
+  xhr.addEventListener(`error`, function () {
+    onError(`Произошла ошибка соединения`);
+  });
+  xhr.addEventListener(`timeout`, function () {
+    onError(`Запрос не успел выполниться за ` + xhr.timeout + `мс`);
+  });
 
-        case 400:
-          error = `Неверный запрос`;
-          break;
-        case 401:
-          error = `Пользователь не авторизован`;
-          break;
-        case 404:
-          error = `Ничего не найдено`;
-          break;
+  xhr.timeout = window.consts.TIMEOUT_IN_MS;
 
-        default:
-          error = `Cтатус ответа: : ` + xhr.status + ` ` + xhr.statusText;
-      }
+  return xhr;
+};
 
-      if (error) {
-        onError(error);
-      }
-    });
+const upload = function (onSuccess, onError, data) {
+  const xhr = getXhr(onSuccess, onError);
+  xhr.open(`POST`, URL_ADDRESS.upload);
+  xhr.send(data);
+};
 
-    xhr.addEventListener(`error`, function () {
-      onError(`Произошла ошибка соединения`);
-    });
-    xhr.addEventListener(`timeout`, function () {
-      onError(`Запрос не успел выполниться за ` + xhr.timeout + `мс`);
-    });
+const load = function (onSuccess, onError) {
+  let xhr = getXhr(onSuccess, onError);
+  xhr.open(`GET`, URL_ADDRESS.load);
+  xhr.send();
+};
 
-    xhr.timeout = TIMEOUT_IN_MS;
+window.backend = {
+  load: load,
+  upload: upload
+};
 
-    xhr.open(`GET`, URL);
-    xhr.send();
-  };
-
-  window.backend = {
-    load: load
-  };
-
-
-})();

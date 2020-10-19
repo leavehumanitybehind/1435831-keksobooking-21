@@ -1,69 +1,50 @@
 /* eslint-disable object-shorthand */
 "use strict";
 
-(function () {
+let activePin = false;
 
-  const PinSize = {
-    WIDTH: 50,
-    HEIGHT: 70
-  };
+const PinSize = {
+  WIDTH: 50,
+  HEIGHT: 70
+};
 
-  const pinTemplate = document.querySelector(`#pin`).content;
-  const mapPin = pinTemplate.querySelector(`.map__pin`);
-  const pinsContainer = document.querySelector(`.map`).querySelector(`.map__pins`);
+const activatePin = function (pin) {
+  if (activePin) {
+    disablePin();
+  }
+  activePin = pin;
+  activePin.classList.add(`map__pin--active`);
+};
 
-  const createPin = function (ad) {
-    const pinsTemplate = mapPin.cloneNode(true);
-    const pinX = ad.location.x - (PinSize.WIDTH / 2);
-    const pinY = ad.location.y - PinSize.HEIGHT;
-    pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
-    pinsTemplate.querySelector(`img`).src = ad.author.avatar;
-    pinsTemplate.querySelector(`img`).alt = ad.offer.title;
-    window.card.createCard(ad);
-    return pinsTemplate;
-  };
+const disablePin = function () {
+  activePin.classList.remove(`map__pin--active`);
+};
 
-  const successHandler = function (ad) {
-    const fragment = document.createDocumentFragment();
-    for (let i = 0; i < window.data.ADS_NUMBER; i++) {
-      fragment.appendChild(createPin(ad[i]));
+const renderPins = function (ad) {
+  const pinsTemplate = window.consts.mapPin.cloneNode(true);
+  pinsTemplate.querySelector(`img`).src = ad.author.avatar;
+  pinsTemplate.querySelector(`img`).alt = ad.offer.title;
+  const pinX = ad.location.x - (PinSize.WIDTH / 2);
+  const pinY = ad.location.y - PinSize.HEIGHT;
+  pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
+  return pinsTemplate;
+};
+
+const onPinClick = function (pin, ad) {
+  pin.addEventListener(`click`, function (evt) {
+    if (activePin !== evt.currentTarget) {
+      window.consts.pinsContainer.appendChild(window.card.renderCard(ad));
+      activatePin(evt.currentTarget);
     }
-    pinsContainer.appendChild(fragment);
-  };
-
-  const errorHandler = function (errorMessage) {
-    const node = document.createElement(`div`);
-    node.style = `z-index: 100; margin:auto; text-align: center; background-color: rgba(0,0,0, 0.4);`;
-    node.style.position = `absolute`;
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.width = `100%`;
-    node.style.height = `100%`;
-    node.style.paddingTop = `300px`;
-    node.style.fontSize = `60px`;
-    node.style.fontWeight = `bold`;
-    node.style.color = `white`;
-
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement(`afterbegin`, node);
-  };
+  });
+};
 
 
-  const removePins = function () {
-    const pins = window.map.map.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-    pins.forEach(function (elem) {
-      elem.remove();
-    });
-  };
+window.pin = {
+  PinSize: PinSize,
+  disablePin: disablePin,
+  renderPins: renderPins,
+  onPinClick: onPinClick
 
+};
 
-  window.pin = {
-    mapPin: mapPin,
-    pinsContainer: pinsContainer,
-    PinSize: PinSize,
-    removePins: removePins,
-    successHandler: successHandler,
-    errorHandler: errorHandler
-  };
-
-})();

@@ -19,9 +19,11 @@ const allPins = document.querySelectorAll(`.map__pin`);
 const pinsContainer = map.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 const houseTypeSelect = document.querySelector(`#housing-type`);
-const housePriceSelect = document.querySelector('#housing-price');
+const housePriceSelect = document.querySelector(`#housing-price`);
+const houseRoomSelect = document.querySelector(`#housing-rooms`);
+const houseGuestSelect = document.querySelector(`#housing-guests`);
+const houseFeaturesSelect = document.querySelector(`#housing-features`);
 const MAX_PINS = 5;
-const ADS_NUMBER = 8;
 const adForm = document.querySelector(`.ad-form`);
 const mapFiltersForm = document.querySelector(`.map__filters`);
 const mapFiltersSelects = mapFiltersForm.querySelectorAll(`select`);
@@ -39,33 +41,35 @@ const timeinSelect = adForm.querySelector(`#timein`);
 const timeoutSelect = adForm.querySelector(`#timeout`);
 
 window.consts = {
-  mainPin: mainPin,
-  map: map,
-  TIMEOUT_IN_MS: TIMEOUT_IN_MS,
-  pinTemplate: pinTemplate,
-  mapPin: mapPin,
-  allPins: allPins,
-  pinsContainer: pinsContainer,
-  cardTemplate: cardTemplate,
-  houseTypeSelect: houseTypeSelect,
+  mainPin,
+  map,
+  TIMEOUT_IN_MS,
+  pinTemplate,
+  mapPin,
+  allPins,
+  pinsContainer,
+  cardTemplate,
+  houseTypeSelect,
+  houseRoomSelect,
+  houseGuestSelect,
+  houseFeaturesSelect,
   housePriceSelect,
-  MAX_PINS: MAX_PINS,
-  ADS_NUMBER: ADS_NUMBER,
-  mapFiltersForm: mapFiltersForm,
-  mapFiltersSelects: mapFiltersSelects,
-  adFormSelects: adFormSelects,
-  fieldsets: fieldsets,
-  inputs: inputs,
-  success: success,
-  error: error,
-  main: main,
-  adForm: adForm,
-  roomNumberSelect: roomNumberSelect,
-  capacitySelect: capacitySelect,
-  housingSelect: housingSelect,
-  priceInput: priceInput,
-  timeinSelect: timeinSelect,
-  timeoutSelect: timeoutSelect
+  MAX_PINS,
+  mapFiltersForm,
+  mapFiltersSelects,
+  adFormSelects,
+  fieldsets,
+  inputs,
+  success,
+  error,
+  main,
+  adForm,
+  roomNumberSelect,
+  capacitySelect,
+  housingSelect,
+  priceInput,
+  timeinSelect,
+  timeoutSelect
 };
 
 
@@ -154,10 +158,10 @@ const getXhr = function (onSuccess, onError) {
     }
   });
   xhr.addEventListener(`error`, function () {
-    onError(`Произошла ошибка соединения`);
+    onError(`Произошла ошибка соединения. Пожалуйста обновите страницу`);
   });
   xhr.addEventListener(`timeout`, function () {
-    onError(`Запрос не успел выполниться за ` + xhr.timeout + `мс`);
+    onError(`Запрос не успел выполниться за ` + xhr.timeout + ` мс ` + ` Пожалуйста обновите страницу`);
   });
 
   xhr.timeout = window.consts.TIMEOUT_IN_MS;
@@ -277,12 +281,151 @@ window.move = {
 })();
 
 (() => {
+/*!********************!*\
+  !*** ./js/form.js ***!
+  \********************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements:  */
+/* eslint-disable object-shorthand */
+
+
+
+const resetForm = function () {
+  window.consts.adForm.querySelectorAll(`input`).forEach(function (element) {
+    element.value = ``;
+    return element;
+  });
+  window.move.setAddress(window.pin.mainPin);
+};
+
+const disableFormControls = function (controls) {
+  for (let i = 0; i < controls.length; i++) {
+    controls[i].setAttribute(`disabled`, `disabled`);
+  }
+  window.consts.mapFiltersForm.setAttribute(`disabled`, `disabled`);
+};
+
+const enableControls = function (controls) {
+  for (let i = 0; i < controls.length; i++) {
+    controls[i].removeAttribute(`disabled`, `disabled`);
+  }
+  window.consts.mapFiltersForm.removeAttribute(`disabled`, `disabled`);
+};
+
+const errorMessage = function () {
+  const message = window.consts.error.cloneNode(true);
+  message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
+  window.consts.main.appendChild(message);
+};
+
+const closeErrorMessage = function () {
+  window.consts.main.removeChild(window.consts.main.querySelector(`.error`));
+  document.removeEventListener(`keydown`, onErrorEscPress);
+};
+
+const onErrorEscPress = function (evt) {
+  window.util.isEscKeyCode(evt, closeErrorMessage);
+};
+
+const onSuccessEscPress = function (evt) {
+  window.util.isEscKeyCode(evt, closeSuccessMessage);
+};
+
+const closeSuccessMessage = function () {
+  window.consts.main.removeChild(window.consts.main.querySelector(`.success`));
+  document.removeEventListener(`keydown`, onSuccessEscPress);
+};
+
+const successMessage = function () {
+  const message = window.consts.success.cloneNode(true);
+  message.querySelector(`.success`).addEventListener(`click`, closeSuccessMessage);
+  window.consts.main.appendChild(message);
+};
+
+const removePins = function () {
+  const pins = window.consts.pinsContainer.querySelectorAll(`.map__pin`);
+
+  for (let i = 1; i < pins.length; i++) {
+    window.consts.pinsContainer.removeChild(pins[i]);
+  }
+};
+
+const addFormListeners = function () {
+  window.consts.housingSelect.addEventListener(`change`, window.validation.onHousingTypeChange);
+  window.consts.timeinSelect.addEventListener(`change`, window.validation.onTimeoutChange);
+  window.consts.timeoutSelect.addEventListener(`change`, window.validation.onTimeinChange);
+  window.consts.adForm.addEventListener(`submit`, submitHandler);
+  window.consts.houseTypeSelect.addEventListener(`change`, window.filter.onFilterChange);
+  window.consts.housePriceSelect.addEventListener(`change`, window.filter.onFilterChange);
+  window.consts.houseRoomSelect.addEventListener(`change`, window.filter.onFilterChange);
+  window.consts.houseGuestSelect.addEventListener(`change`, window.filter.onFilterChange);
+};
+
+const activateMap = function () {
+  window.consts.map.classList.remove(`map--faded`);
+  window.filter.onFilterChange();
+  window.consts.mapFiltersForm.classList.remove(`map__filters--disabled`);
+  window.consts.adForm.classList.remove(`ad-form--disabled`);
+  addFormListeners();
+  enableControls(window.consts.fieldsets);
+  enableControls(window.consts.inputs);
+  enableControls(window.consts.adFormSelects);
+  enableControls(window.consts.mapFiltersSelects);
+};
+
+const disableMap = function () {
+  window.consts.map.classList.add(`map--faded`);
+  window.consts.mainPin.style.left = window.move.MainPin.DEFAULT_X;
+  window.consts.mainPin.style.top = window.move.MainPin.DEFAULT_Y;
+  disableFormControls(window.consts.fieldsets);
+  disableFormControls(window.consts.inputs);
+  disableFormControls(window.consts.adFormSelects);
+  disableFormControls(window.consts.mapFiltersSelects);
+  removePins();
+  resetForm();
+};
+
+const submitHandler = function (evt) {
+  window.backend.upload(successMessage, errorMessage, new FormData(window.consts.adForm));
+  evt.preventDefault();
+  disableMap();
+};
+
+window.form = {
+  disableFormControls: disableFormControls,
+  activateMap: activateMap,
+  disableMap: disableMap,
+  removePins: removePins,
+};
+
+
+
+})();
+
+(() => {
 /*!*******************!*\
   !*** ./js/pin.js ***!
   \*******************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
 /* eslint-disable object-shorthand */
+
+
+const onMouseDown = function (evt) {
+  if (evt.which === window.util.KeyCode.MOUSE_LEFT_CLICK) {
+    window.form.activateMap();
+  }
+};
+
+const onKeyDown = function (evt) {
+  if (evt.code === window.util.KeyCode.ENTER) {
+    window.form.activateMap();
+  }
+};
+
+window.form.disableMap();
+window.consts.mainPin.addEventListener(`mousedown`, onMouseDown);
+window.consts.mainPin.addEventListener(`keydown`, onKeyDown);
 
 
 let activePin = false;
@@ -444,9 +587,11 @@ window.card = {
 
 
 let pins = [];
-const HouseType = {
+const Filters = {
   type: `any`,
-  price: `any`
+  price: `any`,
+  room: `any`,
+  guest: `any`
 };
 
 const HousePrice = {
@@ -467,8 +612,10 @@ const checkPrice = function (ad) {
 };
 
 const filterAd = function (ad) {
-  return ((window.consts.houseTypeSelect.value === `any`) ? true : (ad.offer.type === window.consts.houseTypeSelect.value)) &&
-    ((window.consts.housePriceSelect.value === `any`) ? true : checkPrice(ad));
+  return ((window.consts.houseTypeSelect.value === Filters.type) ? true : (ad.offer.type === window.consts.houseTypeSelect.value)) &&
+    ((window.consts.housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
+    ((window.consts.houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === window.consts.houseRoomSelect.value)) &&
+    ((window.consts.houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === window.consts.houseGuestSelect.value));
 };
 
 
@@ -511,154 +658,6 @@ window.filter = {
   errorHandler: errorHandler,
   successHandler: successHandler
 };
-
-
-
-})();
-
-(() => {
-/*!********************!*\
-  !*** ./js/form.js ***!
-  \********************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements:  */
-/* eslint-disable object-shorthand */
-
-
-
-const resetForm = function () {
-  window.consts.adForm.querySelectorAll(`input`).forEach(function (element) {
-    element.value = ``;
-    return element;
-  });
-  window.move.setAddress(window.pin.mainPin);
-};
-
-const disableFormControls = function (controls) {
-  for (let i = 0; i < controls.length; i++) {
-    controls[i].setAttribute(`disabled`, `disabled`);
-  }
-  window.consts.mapFiltersForm.setAttribute(`disabled`, `disabled`);
-};
-
-const enableControls = function (controls) {
-  for (let i = 0; i < controls.length; i++) {
-    controls[i].removeAttribute(`disabled`, `disabled`);
-  }
-  window.consts.mapFiltersForm.removeAttribute(`disabled`, `disabled`);
-};
-
-const errorMessage = function () {
-  const message = window.consts.error.cloneNode(true);
-  message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
-  window.consts.main.appendChild(message);
-};
-
-const closeErrorMessage = function () {
-  window.consts.main.removeChild(window.consts.main.querySelector(`.error`));
-  document.removeEventListener(`keydown`, onErrorEscPress);
-};
-
-const onErrorEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, closeErrorMessage);
-};
-
-const onSuccessEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, closeSuccessMessage);
-};
-
-const closeSuccessMessage = function () {
-  window.consts.main.removeChild(window.consts.main.querySelector(`.success`));
-  document.removeEventListener(`keydown`, onSuccessEscPress);
-};
-
-const successMessage = function () {
-  const message = window.consts.success.cloneNode(true);
-  message.querySelector(`.success`).addEventListener(`click`, closeSuccessMessage);
-  window.consts.main.appendChild(message);
-};
-
-const removePins = function () {
-  const pins = window.consts.pinsContainer.querySelectorAll(`.map__pin`);
-
-  for (let i = 1; i < pins.length; i++) {
-    window.consts.pinsContainer.removeChild(pins[i]);
-  }
-};
-
-const addFormListeners = function () {
-  window.consts.housingSelect.addEventListener(`change`, window.validation.onHousingTypeChange);
-  window.consts.timeinSelect.addEventListener(`change`, window.validation.onTimeoutChange);
-  window.consts.timeoutSelect.addEventListener(`change`, window.validation.onTimeinChange);
-  window.consts.adForm.addEventListener(`submit`, submitHandler);
-  window.consts.houseTypeSelect.addEventListener(`change`, window.filter.onFilterChange);
-  window.consts.housePriceSelect.addEventListener(`change`, window.filter.onFilterChange);
-};
-
-const activateMap = function () {
-  window.consts.map.classList.remove(`map--faded`);
-  window.filter.onFilterChange();
-  window.consts.mapFiltersForm.classList.remove(`map__filters--disabled`);
-  window.consts.adForm.classList.remove(`ad-form--disabled`);
-  addFormListeners();
-  enableControls(window.consts.fieldsets);
-  enableControls(window.consts.inputs);
-  enableControls(window.consts.adFormSelects);
-  enableControls(window.consts.mapFiltersSelects);
-};
-
-const disableMap = function () {
-  window.consts.map.classList.add(`map--faded`);
-  window.consts.mainPin.style.left = window.move.MainPin.DEFAULT_X;
-  window.consts.mainPin.style.top = window.move.MainPin.DEFAULT_Y;
-  disableFormControls(window.consts.fieldsets);
-  disableFormControls(window.consts.inputs);
-  disableFormControls(window.consts.adFormSelects);
-  disableFormControls(window.consts.mapFiltersSelects);
-  removePins();
-  resetForm();
-};
-
-const submitHandler = function (evt) {
-  window.backend.upload(successMessage, errorMessage, new FormData(window.consts.adForm));
-  evt.preventDefault();
-  disableMap();
-};
-
-window.form = {
-  disableFormControls: disableFormControls,
-  activateMap: activateMap,
-  disableMap: disableMap,
-  removePins: removePins,
-};
-
-
-
-})();
-
-(() => {
-/*!********************!*\
-  !*** ./js/main.js ***!
-  \********************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements:  */
-
-
-const onMouseDown = function (evt) {
-  if (evt.which === window.util.KeyCode.MOUSE_LEFT_CLICK) {
-    window.form.activateMap();
-  }
-};
-
-const onKeyDown = function (evt) {
-  if (evt.code === window.util.KeyCode.ENTER) {
-    window.form.activateMap();
-  }
-};
-
-window.form.disableMap();
-window.consts.mainPin.addEventListener(`mousedown`, onMouseDown);
-window.consts.mainPin.addEventListener(`keydown`, onKeyDown);
 
 
 

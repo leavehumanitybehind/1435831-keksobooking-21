@@ -2,9 +2,11 @@
 'use strict';
 
 let pins = [];
-const HouseType = {
+const Filters = {
   type: `any`,
-  price: `any`
+  price: `any`,
+  room: `any`,
+  guest: `any`
 };
 
 const HousePrice = {
@@ -25,8 +27,10 @@ const checkPrice = function (ad) {
 };
 
 const filterAd = function (ad) {
-  return ((window.consts.houseTypeSelect.value === `any`) ? true : (ad.offer.type === window.consts.houseTypeSelect.value)) &&
-    ((window.consts.housePriceSelect.value === `any`) ? true : checkPrice(ad));
+  return ((window.consts.houseTypeSelect.value === Filters.type) ? true : (ad.offer.type === window.consts.houseTypeSelect.value)) &&
+    ((window.consts.housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
+    ((window.consts.houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === window.consts.houseRoomSelect.value)) &&
+    ((window.consts.houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === window.consts.houseGuestSelect.value));
 };
 
 

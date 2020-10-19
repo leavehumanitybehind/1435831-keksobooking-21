@@ -19,10 +19,10 @@ const getXhr = function (onSuccess, onError) {
     }
   });
   xhr.addEventListener(`error`, function () {
-    onError(`Произошла ошибка соединения`);
+    onError(`Произошла ошибка соединения. Пожалуйста обновите страницу`);
   });
   xhr.addEventListener(`timeout`, function () {
-    onError(`Запрос не успел выполниться за ` + xhr.timeout + `мс`);
+    onError(`Запрос не успел выполниться за ` + xhr.timeout + ` мс. ` + ` Пожалуйста обновите страницу`);
   });
 
   xhr.timeout = window.consts.TIMEOUT_IN_MS;

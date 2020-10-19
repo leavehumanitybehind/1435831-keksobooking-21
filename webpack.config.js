@@ -5,12 +5,11 @@ module.exports = {
     "./js/util.js",
     "./js/backend.js",
     "./js/move.js",
+    "./js/form.js",
     "./js/pin.js",
     "./js/data.js",
     "./js/card.js",
     "./js/filter.js",
-    "./js/form.js",
-    "./js/main.js",
     "./js/validation.js",
   ],
 output: {

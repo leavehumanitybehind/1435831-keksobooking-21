@@ -1,7 +1,6 @@
 /* eslint-disable object-shorthand */
 "use strict";
 
-
 const resetForm = function () {
   window.consts.adForm.querySelectorAll(`input`).forEach(function (element) {
     element.value = ``;
@@ -69,6 +68,8 @@ const addFormListeners = function () {
   window.consts.adForm.addEventListener(`submit`, submitHandler);
   window.consts.houseTypeSelect.addEventListener(`change`, window.filter.onFilterChange);
   window.consts.housePriceSelect.addEventListener(`change`, window.filter.onFilterChange);
+  window.consts.houseRoomSelect.addEventListener(`change`, window.filter.onFilterChange);
+  window.consts.houseGuestSelect.addEventListener(`change`, window.filter.onFilterChange);
 };
 
 const activateMap = function () {

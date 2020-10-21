@@ -25,7 +25,7 @@ const disableMap = function () {
   window.form.reset();
 };
 
-resetButton.addEventListener('click', disableMap);
+resetButton.addEventListener(`click`, disableMap);
 
 const submitHandler = function (evt) {
   window.backend.upload(window.form.success, window.form.error, new FormData(adForm));

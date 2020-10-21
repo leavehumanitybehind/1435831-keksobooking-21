@@ -27,7 +27,7 @@ const HousePrice = {
 
 
 const filtrationByFeatures = function (item) {
-  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll('input:checked');
+  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input:checked`);
   return Array.from(checkedFeaturesItems).every(function (element) {
     return item.offer.features.includes(element.value);
   });
@@ -50,7 +50,7 @@ const filterAd = function (ad) {
   return ((houseTypeSelect.value === Filters.type) ? true : (ad.offer.type === houseTypeSelect.value)) &&
     ((housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
     ((houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === parseInt(houseRoomSelect.value, 10))) &&
-    ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === parseInt(houseGuestSelect.value))) &&
+    ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === parseInt(houseGuestSelect.value, 10))) &&
     filtrationByFeatures(ad);
 };
 

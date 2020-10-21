@@ -1,5 +1,8 @@
 "use strict";
 
+const mainPin = document.querySelector(`.map__pin--main`);
+const map = document.querySelector(`.map`);
+
 const MainPin = {
   WIDTH: 65,
   HEIGHT: 84,
@@ -15,8 +18,8 @@ const MainPin = {
 };
 
 const getMainPinCoords = function () {
-  let x = window.consts.mainPin.offsetLeft + Math.floor(MainPin.WIDTH / 2);
-  let y = window.consts.mainPin.offsetTop + MainPin.HEIGHT;
+  let x = mainPin.offsetLeft + Math.floor(MainPin.WIDTH / 2);
+  let y = mainPin.offsetTop + MainPin.HEIGHT;
 
   return {
     x,
@@ -30,7 +33,7 @@ const setAddress = function () {
   address.value = mainPinCoords.x + `,` + mainPinCoords.y;
 };
 
-window.consts.mainPin.addEventListener(`mousedown`, function (evt) {
+mainPin.addEventListener(`mousedown`, function (evt) {
   evt.preventDefault();
 
   let startCoords = {
@@ -53,11 +56,11 @@ window.consts.mainPin.addEventListener(`mousedown`, function (evt) {
 
     let mainPinCoords = getMainPinCoords();
     if (mainPinCoords.y - shift.y >= MainPin.y.MIN && mainPinCoords.y - shift.y <= MainPin.y.MAX) {
-      window.consts.mainPin.style.top = window.consts.mainPin.offsetTop - shift.y + `px`;
+      mainPin.style.top = mainPin.offsetTop - shift.y + `px`;
     }
 
-    if (mainPinCoords.x - shift.x >= MainPin.x.MIN && mainPinCoords.x - shift.x <= window.consts.map.offsetWidth) {
-      window.consts.mainPin.style.left = window.consts.mainPin.offsetLeft - shift.x + `px`;
+    if (mainPinCoords.x - shift.x >= MainPin.x.MIN && mainPinCoords.x - shift.x <= map.offsetWidth) {
+      mainPin.style.left = mainPin.offsetLeft - shift.x + `px`;
     }
     setAddress(mainPinCoords);
   };

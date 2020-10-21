@@ -1,81 +1,6 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 (() => {
-/*!**********************!*\
-  !*** ./js/consts.js ***!
-  \**********************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements:  */
-/* eslint-disable object-shorthand */
-
-
-
-const mainPin = document.querySelector(`.map__pin--main`);
-const map = document.querySelector(`.map`);
-const TIMEOUT_IN_MS = 10000;
-const pinTemplate = document.querySelector(`#pin`).content;
-const mapPin = pinTemplate.querySelector(`.map__pin`);
-const allPins = document.querySelectorAll(`.map__pin`);
-const pinsContainer = map.querySelector(`.map__pins`);
-const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
-const houseTypeSelect = document.querySelector(`#housing-type`);
-const housePriceSelect = document.querySelector(`#housing-price`);
-const houseRoomSelect = document.querySelector(`#housing-rooms`);
-const houseGuestSelect = document.querySelector(`#housing-guests`);
-const houseFeaturesSelect = document.querySelector(`#housing-features`);
-const MAX_PINS = 5;
-const adForm = document.querySelector(`.ad-form`);
-const mapFiltersForm = document.querySelector(`.map__filters`);
-const mapFiltersSelects = mapFiltersForm.querySelectorAll(`select`);
-const adFormSelects = adForm.querySelectorAll(`select`);
-const fieldsets = adForm.querySelectorAll(`.fieldset`);
-const inputs = adForm.querySelectorAll(`input`);
-const success = document.querySelector(`#success`).content;
-const error = document.querySelector(`#error`).content;
-const main = document.querySelector(`main`);
-const roomNumberSelect = document.querySelector(`#room_number`);
-const capacitySelect = document.querySelector(`#capacity`);
-const housingSelect = adForm.querySelector(`#type`);
-const priceInput = adForm.querySelector(`#price`);
-const timeinSelect = adForm.querySelector(`#timein`);
-const timeoutSelect = adForm.querySelector(`#timeout`);
-
-window.consts = {
-  mainPin,
-  map,
-  TIMEOUT_IN_MS,
-  pinTemplate,
-  mapPin,
-  allPins,
-  pinsContainer,
-  cardTemplate,
-  houseTypeSelect,
-  houseRoomSelect,
-  houseGuestSelect,
-  houseFeaturesSelect,
-  housePriceSelect,
-  MAX_PINS,
-  mapFiltersForm,
-  mapFiltersSelects,
-  adFormSelects,
-  fieldsets,
-  inputs,
-  success,
-  error,
-  main,
-  adForm,
-  roomNumberSelect,
-  capacitySelect,
-  housingSelect,
-  priceInput,
-  timeinSelect,
-  timeoutSelect
-};
-
-
-})();
-
-(() => {
 /*!********************!*\
   !*** ./js/util.js ***!
   \********************/
@@ -144,46 +69,47 @@ const URL_ADDRESS = {
   load: `https://21.javascript.pages.academy/keksobooking/data`,
   upload: `https://21.javascript.pages.academy/keksobooking/`
 };
-const OK = 200;
+const CODE_STATUS_OK = 200;
+const TIMEOUT_IN_MS = 10000;
 
 const getXhr = function (onSuccess, onError) {
   let xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
   xhr.addEventListener(`load`, function () {
-    if (xhr.status === OK) {
+    if (xhr.status === CODE_STATUS_OK) {
       onSuccess(xhr.response);
     } else {
-      onError(`Статус ошибки: ` + xhr.status + xhr.statusText);
+      onError(`Статус ошибки: ` + xhr.status + ` ` + xhr.statusText);
     }
   });
   xhr.addEventListener(`error`, function () {
     onError(`Произошла ошибка соединения. Пожалуйста обновите страницу`);
   });
   xhr.addEventListener(`timeout`, function () {
-    onError(`Запрос не успел выполниться за ` + xhr.timeout + ` мс ` + ` Пожалуйста обновите страницу`);
+    onError(`Запрос не успел выполниться за ` + xhr.timeout + ` мс. ` + ` Пожалуйста обновите страницу`);
   });
 
-  xhr.timeout = window.consts.TIMEOUT_IN_MS;
+  xhr.timeout = TIMEOUT_IN_MS;
 
   return xhr;
 };
 
-const upload = function (onSuccess, onError, data) {
+const onUpload = function (onSuccess, onError, data) {
   const xhr = getXhr(onSuccess, onError);
   xhr.open(`POST`, URL_ADDRESS.upload);
   xhr.send(data);
 };
 
-const load = function (onSuccess, onError) {
+const onLoad = function (onSuccess, onError) {
   let xhr = getXhr(onSuccess, onError);
   xhr.open(`GET`, URL_ADDRESS.load);
   xhr.send();
 };
 
 window.backend = {
-  load: load,
-  upload: upload
+  load: onLoad,
+  upload: onUpload
 };
 
 
@@ -196,6 +122,9 @@ window.backend = {
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
 
+
+const mainPin = document.querySelector(`.map__pin--main`);
+const map = document.querySelector(`.map`);
 
 const MainPin = {
   WIDTH: 65,
@@ -212,8 +141,8 @@ const MainPin = {
 };
 
 const getMainPinCoords = function () {
-  let x = window.consts.mainPin.offsetLeft + Math.floor(MainPin.WIDTH / 2);
-  let y = window.consts.mainPin.offsetTop + MainPin.HEIGHT;
+  let x = mainPin.offsetLeft + Math.floor(MainPin.WIDTH / 2);
+  let y = mainPin.offsetTop + MainPin.HEIGHT;
 
   return {
     x,
@@ -227,7 +156,7 @@ const setAddress = function () {
   address.value = mainPinCoords.x + `,` + mainPinCoords.y;
 };
 
-window.consts.mainPin.addEventListener(`mousedown`, function (evt) {
+mainPin.addEventListener(`mousedown`, function (evt) {
   evt.preventDefault();
 
   let startCoords = {
@@ -250,11 +179,11 @@ window.consts.mainPin.addEventListener(`mousedown`, function (evt) {
 
     let mainPinCoords = getMainPinCoords();
     if (mainPinCoords.y - shift.y >= MainPin.y.MIN && mainPinCoords.y - shift.y <= MainPin.y.MAX) {
-      window.consts.mainPin.style.top = window.consts.mainPin.offsetTop - shift.y + `px`;
+      mainPin.style.top = mainPin.offsetTop - shift.y + `px`;
     }
 
-    if (mainPinCoords.x - shift.x >= MainPin.x.MIN && mainPinCoords.x - shift.x <= window.consts.map.offsetWidth) {
-      window.consts.mainPin.style.left = window.consts.mainPin.offsetLeft - shift.x + `px`;
+    if (mainPinCoords.x - shift.x >= MainPin.x.MIN && mainPinCoords.x - shift.x <= map.offsetWidth) {
+      mainPin.style.left = mainPin.offsetLeft - shift.x + `px`;
     }
     setAddress(mainPinCoords);
   };
@@ -281,124 +210,92 @@ window.move = {
 })();
 
 (() => {
-/*!********************!*\
-  !*** ./js/form.js ***!
-  \********************/
+/*!**************************!*\
+  !*** ./js/validation.js ***!
+  \**************************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
-/* eslint-disable object-shorthand */
 
 
+const adForm = document.querySelector(`.ad-form`);
+const roomNumberSelect = document.querySelector(`#room_number`);
+const capacitySelect = document.querySelector(`#capacity`);
+const housingSelect = adForm.querySelector(`#type`);
+const priceInput = adForm.querySelector(`#price`);
+const timeinSelect = adForm.querySelector(`#timein`);
+const timeoutSelect = adForm.querySelector(`#timeout`);
+let roomsNumber = roomNumberSelect.value;
+let capacityNumber = capacitySelect.value;
 
-const resetForm = function () {
-  window.consts.adForm.querySelectorAll(`input`).forEach(function (element) {
-    element.value = ``;
-    return element;
-  });
-  window.move.setAddress(window.pin.mainPin);
+const VALIDITY_TEXT = {
+  1: `1 комната - для 1 гостя`,
+  2: ` 2 комнаты  - для 2 гостей или 1 гостя`,
+  3: `3 комнаты  - для 3 гостей, 2 гостей или 1 гостя`,
+  100: `100 комнат не для гостей `,
 };
 
-const disableFormControls = function (controls) {
-  for (let i = 0; i < controls.length; i++) {
-    controls[i].setAttribute(`disabled`, `disabled`);
-  }
-  window.consts.mapFiltersForm.setAttribute(`disabled`, `disabled`);
+let MinPrice = {
+  'bungalow': 0,
+  'flat': 1000,
+  'house': 5000,
+  'palace': 10000
+};
+const MAX_PRICE = 1000000;
+
+const onHousingTypeChange = function () {
+  priceInput.min = MinPrice[housingSelect.value];
+  priceInput.placeholder = MinPrice[housingSelect.value];
 };
 
-const enableControls = function (controls) {
-  for (let i = 0; i < controls.length; i++) {
-    controls[i].removeAttribute(`disabled`, `disabled`);
-  }
-  window.consts.mapFiltersForm.removeAttribute(`disabled`, `disabled`);
-};
-
-const errorMessage = function () {
-  const message = window.consts.error.cloneNode(true);
-  message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
-  window.consts.main.appendChild(message);
-};
-
-const closeErrorMessage = function () {
-  window.consts.main.removeChild(window.consts.main.querySelector(`.error`));
-  document.removeEventListener(`keydown`, onErrorEscPress);
-};
-
-const onErrorEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, closeErrorMessage);
-};
-
-const onSuccessEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, closeSuccessMessage);
-};
-
-const closeSuccessMessage = function () {
-  window.consts.main.removeChild(window.consts.main.querySelector(`.success`));
-  document.removeEventListener(`keydown`, onSuccessEscPress);
-};
-
-const successMessage = function () {
-  const message = window.consts.success.cloneNode(true);
-  message.querySelector(`.success`).addEventListener(`click`, closeSuccessMessage);
-  window.consts.main.appendChild(message);
-};
-
-const removePins = function () {
-  const pins = window.consts.pinsContainer.querySelectorAll(`.map__pin`);
-
-  for (let i = 1; i < pins.length; i++) {
-    window.consts.pinsContainer.removeChild(pins[i]);
+const setPriceLimit = function () {
+  if (priceInput.value > MAX_PRICE) {
+    priceInput.setCustomValidity('Максимальная цена ' + MAX_PRICE);
   }
 };
 
-const addFormListeners = function () {
-  window.consts.housingSelect.addEventListener(`change`, window.validation.onHousingTypeChange);
-  window.consts.timeinSelect.addEventListener(`change`, window.validation.onTimeoutChange);
-  window.consts.timeoutSelect.addEventListener(`change`, window.validation.onTimeinChange);
-  window.consts.adForm.addEventListener(`submit`, submitHandler);
-  window.consts.houseTypeSelect.addEventListener(`change`, window.filter.onFilterChange);
-  window.consts.housePriceSelect.addEventListener(`change`, window.filter.onFilterChange);
-  window.consts.houseRoomSelect.addEventListener(`change`, window.filter.onFilterChange);
-  window.consts.houseGuestSelect.addEventListener(`change`, window.filter.onFilterChange);
+
+const setTimeOption = function (element, value) {
+  element.value = value;
 };
 
-const activateMap = function () {
-  window.consts.map.classList.remove(`map--faded`);
-  window.filter.onFilterChange();
-  window.consts.mapFiltersForm.classList.remove(`map__filters--disabled`);
-  window.consts.adForm.classList.remove(`ad-form--disabled`);
-  addFormListeners();
-  enableControls(window.consts.fieldsets);
-  enableControls(window.consts.inputs);
-  enableControls(window.consts.adFormSelects);
-  enableControls(window.consts.mapFiltersSelects);
+const onTimeoutChange = function (evt) {
+  setTimeOption(timeoutSelect, evt.target.value);
 };
 
-const disableMap = function () {
-  window.consts.map.classList.add(`map--faded`);
-  window.consts.mainPin.style.left = window.move.MainPin.DEFAULT_X;
-  window.consts.mainPin.style.top = window.move.MainPin.DEFAULT_Y;
-  disableFormControls(window.consts.fieldsets);
-  disableFormControls(window.consts.inputs);
-  disableFormControls(window.consts.adFormSelects);
-  disableFormControls(window.consts.mapFiltersSelects);
-  removePins();
-  resetForm();
+const onTimeinChange = function (evt) {
+  setTimeOption(timeinSelect, evt.target.value);
 };
 
-const submitHandler = function (evt) {
-  window.backend.upload(successMessage, errorMessage, new FormData(window.consts.adForm));
-  evt.preventDefault();
-  disableMap();
+const syncRoomsGuests = function (rooms, guests) {
+  if ((guests > rooms && rooms !== 100) || (rooms !== 100 && guests === 0) || (rooms === 100 && guests > 0)) {
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+  } else {
+    capacitySelect.setCustomValidity(``);
+  }
 };
 
-window.form = {
-  disableFormControls: disableFormControls,
-  activateMap: activateMap,
-  disableMap: disableMap,
-  removePins: removePins,
+roomNumberSelect.addEventListener(`change`, function () {
+  roomsNumber = roomNumberSelect.value;
+  syncRoomsGuests(roomsNumber, capacityNumber);
+});
+
+capacitySelect.addEventListener(`change`, function () {
+  capacityNumber = capacitySelect.value;
+  capacitySelect.setCustomValidity(``);
+  syncRoomsGuests(roomsNumber, capacityNumber);
+});
+
+const changeSelectHandler = function () {
+  housingSelect.addEventListener(`change`, onHousingTypeChange);
+  priceInput.addEventListener(`change`, setPriceLimit);
+  timeinSelect.addEventListener(`change`, onTimeoutChange);
+  timeoutSelect.addEventListener(`change`, onTimeinChange);
 };
 
 
+window.validation = {
+  change: changeSelectHandler
+};
 
 })();
 
@@ -411,28 +308,18 @@ window.form = {
 /* eslint-disable object-shorthand */
 
 
-const onMouseDown = function (evt) {
-  if (evt.which === window.util.KeyCode.MOUSE_LEFT_CLICK) {
-    window.form.activateMap();
-  }
-};
-
-const onKeyDown = function (evt) {
-  if (evt.code === window.util.KeyCode.ENTER) {
-    window.form.activateMap();
-  }
-};
-
-window.form.disableMap();
-window.consts.mainPin.addEventListener(`mousedown`, onMouseDown);
-window.consts.mainPin.addEventListener(`keydown`, onKeyDown);
-
-
-let activePin = false;
+const pinTemplate = document.querySelector(`#pin`).content;
+const mapPin = pinTemplate.querySelector(`.map__pin`);
 
 const PinSize = {
   WIDTH: 50,
   HEIGHT: 70
+};
+
+let activePin = false;
+
+const disablePin = function () {
+  activePin.classList.remove(`map__pin--active`);
 };
 
 const activatePin = function (pin) {
@@ -443,12 +330,8 @@ const activatePin = function (pin) {
   activePin.classList.add(`map__pin--active`);
 };
 
-const disablePin = function () {
-  activePin.classList.remove(`map__pin--active`);
-};
-
 const renderPins = function (ad) {
-  const pinsTemplate = window.consts.mapPin.cloneNode(true);
+  const pinsTemplate = mapPin.cloneNode(true);
   pinsTemplate.querySelector(`img`).src = ad.author.avatar;
   pinsTemplate.querySelector(`img`).alt = ad.offer.title;
   const pinX = ad.location.x - (PinSize.WIDTH / 2);
@@ -457,21 +340,12 @@ const renderPins = function (ad) {
   return pinsTemplate;
 };
 
-const onPinClick = function (pin, ad) {
-  pin.addEventListener(`click`, function (evt) {
-    if (activePin !== evt.currentTarget) {
-      window.consts.pinsContainer.appendChild(window.card.renderCard(ad));
-      activatePin(evt.currentTarget);
-    }
-  });
-};
-
 
 window.pin = {
-  PinSize: PinSize,
-  disablePin: disablePin,
-  renderPins: renderPins,
-  onPinClick: onPinClick
+  size: PinSize,
+  disable: disablePin,
+  render: renderPins,
+  activate: activatePin
 
 };
 
@@ -487,11 +361,9 @@ window.pin = {
 /* eslint-disable object-shorthand */
 
 
-const HOUSING_TYPES = [`palace`, `flat`, `house`, `bungalow`];
 const ROOMS = [1, 2, 3, 100];
 const GUESTS = [1, 2, 3, 0];
 const CHECK_INS = [`12:00`, `13:00`, `14:00`];
-const FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
 
 const Price = {
@@ -499,17 +371,17 @@ const Price = {
   MAX: 1000000
 };
 
-const getFeautures = function () {
-  const feauturesCount = window.util.getRandomNumber(1, FEATURES.length);
-  const features = [];
-  const feature = window.util.getRandomArrayValue(FEATURES);
-  for (let i = 0; i < feauturesCount; i++) {
-    if (features.includes(feature)) {
-      feature = window.util.getRandomArrayValue(FEATURES);
-      features.push(feature);
-    }
+const getFeautures = function (ad, card) {
+  const features = card.querySelector(`.popup__features`);
+  features.innerHTML = ``;
+  const fragmentFeatures = document.createDocumentFragment();
+  for (let i = 0; i < ad.offer.features.length; i++) {
+    const newFeature = document.createElement(`li`);
+    newFeature.classList.add(`popup__feature`);
+    newFeature.classList.add(`popup__feature--` + ad.offer.features[i]);
+    fragmentFeatures.appendChild(newFeature);
   }
-  return features;
+  features.appendChild(fragmentFeatures);
 };
 
 function getPhotos(photos) {
@@ -524,7 +396,6 @@ function getPhotos(photos) {
 window.data = {
   getFeautures: getFeautures,
   getPhotos: getPhotos,
-  HOUSING_TYPES: HOUSING_TYPES,
   ROOMS: ROOMS,
   GUESTS: GUESTS,
   CHECK_INS: CHECK_INS,
@@ -543,34 +414,58 @@ window.data = {
 /* eslint-disable object-shorthand */
 
 
+const pinsContainer = document.querySelector(`.map__pins`);
 
+const HOUSING_TYPES = {
+  palace: `Дворец`,
+  flat: `Квартира`,
+  house: `Дом`,
+  bungalow: `Бунгало`
+};
+
+const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 const onCardEscPress = function (evt) {
   window.util.isEscKeyCode(evt, function () {
-    window.consts.pinsContainer.removeChild(window.consts.pinsContainer.querySelector(`.map__card`));
+    pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
   });
 };
 
 const renderCard = function (ad) {
-  const card = window.consts.cardTemplate.cloneNode(true);
+  const card = cardTemplate.cloneNode(true);
   card.querySelector(`.popup__title`).textContent = ad.offer.title;
   card.querySelector(`.popup__text--address`).textContent = ad.offer.address;
   card.querySelector(`.popup__text--price`).textContent = ad.offer.price;
-  card.querySelector(`.popup__type`).textContent = ad.offer.type;
+  const type = card.querySelector(`.popup__type`);
+  switch (ad.offer.type) {
+    case `palace`:
+      type.textContent = HOUSING_TYPES.palace;
+      break;
+    case `flat`:
+      type.textContent = HOUSING_TYPES.flat;
+      break;
+    case `house`:
+      type.textContent = HOUSING_TYPES.house;
+      break;
+    case `bungalow`:
+      type.textContent = HOUSING_TYPES.bungalow;
+      break;
+  }
   card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
   card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
   card.querySelector(`.popup__description`).textContent = ad.offer.description;
   card.querySelector(`.popup__avatar`).src = ad.author.avatar;
   card.querySelector(`.popup__photos`).innerHTML = window.data.getPhotos(ad.offer.photos);
+  window.data.getFeautures(ad, card);
   card.querySelector(`.popup__close`).addEventListener(`click`, function () {
-    window.consts.pinsContainer.removeChild(window.consts.pinsContainer.querySelector(`.map__card`));
-    window.pin.disablePin();
+    pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
+    window.pin.disable();
   });
   document.addEventListener(`keydown`, onCardEscPress);
   return card;
 };
 
 window.card = {
-  renderCard: renderCard
+  render: renderCard
 };
 
 
@@ -586,12 +481,23 @@ window.card = {
 /* eslint-disable object-shorthand */
 
 
+const pinsContainer = document.querySelector(`.map__pins`);
+const houseTypeSelect = document.querySelector(`#housing-type`);
+const housePriceSelect = document.querySelector(`#housing-price`);
+const houseRoomSelect = document.querySelector(`#housing-rooms`);
+const houseGuestSelect = document.querySelector(`#housing-guests`);
+const houseFeaturesSelect = document.querySelector(`#housing-features`);
+const card = pinsContainer.querySelector(`.map__card`);
+const MAX_PINS = 5;
 let pins = [];
+let activePin = false;
+
 const Filters = {
   type: `any`,
   price: `any`,
   room: `any`,
-  guest: `any`
+  guest: `any`,
+  features: []
 };
 
 const HousePrice = {
@@ -599,11 +505,20 @@ const HousePrice = {
   max: 50000
 };
 
+
+const filtrationByFeatures = function (item) {
+  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll('input:checked');
+  return Array.from(checkedFeaturesItems).every(function (element) {
+    return item.offer.features.includes(element.value);
+  });
+};
+
+
 const checkPrice = function (ad) {
-  switch (window.consts.housePriceSelect.value) {
+  switch (housePriceSelect.value) {
     case `low`:
       return (ad.offer.price < HousePrice.min);
-    case `middle`:
+    case `medium`:
       return ad.offer.price >= HousePrice.min && ad.offer.price <= HousePrice.max;
     case `high`:
       return ad.offer.price > HousePrice.max;
@@ -612,32 +527,49 @@ const checkPrice = function (ad) {
 };
 
 const filterAd = function (ad) {
-  return ((window.consts.houseTypeSelect.value === Filters.type) ? true : (ad.offer.type === window.consts.houseTypeSelect.value)) &&
-    ((window.consts.housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
-    ((window.consts.houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === window.consts.houseRoomSelect.value)) &&
-    ((window.consts.houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === window.consts.houseGuestSelect.value));
+  return ((houseTypeSelect.value === Filters.type) ? true : (ad.offer.type === houseTypeSelect.value)) &&
+    ((housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
+    ((houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === parseInt(houseRoomSelect.value, 10))) &&
+    ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === parseInt(houseGuestSelect.value))) &&
+    filtrationByFeatures(ad);
 };
-
 
 const getFilteredPins = function (ads) {
   let similiars = ads.filter(filterAd);
-  return similiars.slice(0, window.consts.MAX_PINS);
+  return similiars.slice(0, MAX_PINS);
+};
+
+
+const onPinClick = function (pin, ad) {
+  pin.addEventListener(`click`, function (evt) {
+    if (activePin !== evt.currentTarget) {
+      pinsContainer.appendChild(window.card.render(ad));
+      window.pin.activate(evt.currentTarget);
+    }
+  });
+};
+
+const removePins = function () {
+  const allPins = pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+  allPins.forEach(function (pin) {
+    pinsContainer.removeChild(pin);
+  });
 };
 
 const updatePins = function (ads) {
   ads = getFilteredPins(pins);
-  window.form.removePins();
+  removePins();
 
-  const takeNumber = ads.length > window.consts.MAX_PINS ? window.consts.MAX_PINS : ads.length;
-  for (let k = 0; k < takeNumber; k++) {
-    const currentPin = window.pin.renderPins(ads[k]);
-    window.consts.pinsContainer.appendChild(currentPin);
-    window.pin.onPinClick(currentPin, ads[k]);
+  const numberOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
+  for (let k = 0; k < numberOfPins; k++) {
+    const currentPin = window.pin.render(ads[k]);
+    pinsContainer.appendChild(currentPin);
+    onPinClick(currentPin, ads[k]);
   }
 };
 
-const successHandler = function (ads) {
-  pins = ads;
+const successHandler = function (data) {
+  pins = data;
   updatePins(pins);
 };
 
@@ -645,18 +577,28 @@ const errorHandler = function (errorMessage) {
   window.util.createErrorMessage(errorMessage);
 };
 
+const changeFilterHandler = function () {
+  houseTypeSelect.addEventListener(`change`, onFilterChange);
+  housePriceSelect.addEventListener(`change`, onFilterChange);
+  houseRoomSelect.addEventListener(`change`, onFilterChange);
+  houseGuestSelect.addEventListener(`change`, onFilterChange);
+  houseFeaturesSelect.addEventListener(`change`, onFilterChange);
+};
+
 const onFilterChange = function () {
-  const card = window.consts.pinsContainer.querySelector(`.map__card`);
   if (card) {
-    window.consts.pinsContainer.removeChild(card);
+    pinsContainer.removeChild(card);
   }
+  changeFilterHandler();
   window.backend.load(successHandler, errorHandler);
 };
 
+
 window.filter = {
-  onFilterChange: onFilterChange,
-  errorHandler: errorHandler,
-  successHandler: successHandler
+  change: onFilterChange,
+  error: errorHandler,
+  success: successHandler,
+  removePins: removePins
 };
 
 
@@ -664,72 +606,164 @@ window.filter = {
 })();
 
 (() => {
-/*!**************************!*\
-  !*** ./js/validation.js ***!
-  \**************************/
+/*!********************!*\
+  !*** ./js/form.js ***!
+  \********************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements:  */
+/* eslint-disable object-shorthand */
+
+
+const adForm = document.querySelector(`.ad-form`);
+const success = document.querySelector(`#success`).content;
+const error = document.querySelector(`#error`).content;
+const main = document.querySelector(`main`);
+const mainPin = document.querySelector(`.map__pin--main`);
+const mapFiltersForm = document.querySelector(`.map__filters`);
+const mapFiltersSelects = mapFiltersForm.querySelectorAll(`select`);
+const adFormSelects = adForm.querySelectorAll(`select`);
+const fieldsets = adForm.querySelectorAll(`.fieldset`);
+const inputs = adForm.querySelectorAll(`input`);
+
+const resetForm = function () {
+  adForm.querySelectorAll(`input`).forEach(function (element) {
+    element.value = ``;
+    return element;
+  });
+  window.move.setAddress(mainPin);
+};
+
+const disableFormControls = function (controls) {
+  controls.forEach(function (control) {
+    control.setAttribute(`disabled`, `disabled`);
+  });
+  mapFiltersForm.setAttribute(`disabled`, `disabled`);
+};
+
+const enableControls = function (controls) {
+  controls.forEach(function (control) {
+    control.removeAttribute(`disabled`, `disabled`);
+  });
+  mapFiltersForm.removeAttribute(`disabled`, `disabled`);
+};
+
+const closeErrorMessage = function () {
+  main.removeChild(main.querySelector(`.error`));
+  document.removeEventListener(`keydown`, onErrorEscPress);
+};
+
+const onErrorEscPress = function (evt) {
+  window.util.isEscKeyCode(evt, closeErrorMessage);
+};
+
+const errorMessage = function () {
+  const message = error.cloneNode(true);
+  message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
+  main.appendChild(message);
+};
+
+const onSuccessEscPress = function (evt) {
+  window.util.isEscKeyCode(evt, closeSuccessMessage);
+};
+
+const closeSuccessMessage = function () {
+  main.removeChild(main.querySelector(`.success`));
+  document.removeEventListener(`keydown`, onSuccessEscPress);
+};
+
+const successMessage = function () {
+  const message = success.cloneNode(true);
+  message.querySelector(`.success`).addEventListener(`click`, closeSuccessMessage);
+  main.appendChild(message);
+};
+
+const enableForm = function () {
+  enableControls(fieldsets);
+  enableControls(inputs);
+  enableControls(adFormSelects);
+  enableControls(mapFiltersSelects);
+};
+
+const disableForm = function () {
+  disableFormControls(fieldsets);
+  disableFormControls(inputs);
+  disableFormControls(adFormSelects);
+  disableFormControls(mapFiltersSelects);
+};
+
+window.form = {
+  enable: enableForm,
+  disable: disableForm,
+  reset: resetForm,
+  success: successMessage,
+  error: errorMessage
+};
+
+
+
+})();
+
+(() => {
+/*!********************!*\
+  !*** ./js/main.js ***!
+  \********************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
 
 
-let roomsNumber = window.consts.roomNumberSelect.value;
-let capacityNumber = window.consts.capacitySelect.value;
+const mainPin = document.querySelector(`.map__pin--main`);
+const map = document.querySelector(`.map`);
+const mapFiltersForm = document.querySelector(`.map__filters`);
+const adForm = document.querySelector(`.ad-form`);
+const resetButton = adForm.querySelector(`.ad-form__reset`);
 
-const VALIDITY_TEXT = {
-  1: `1 комната - для 1 гостя`,
-  2: ` 2 комнаты  - для 2 гостей или 1 гостя`,
-  3: `3 комнаты  - для 3 гостей, 2 гостей или 1 гостя`,
-  100: `100 комнат не для гостей `,
+
+const activateMap = function () {
+  map.classList.remove(`map--faded`);
+  mapFiltersForm.classList.remove(`map__filters--disabled`);
+  adForm.classList.remove(`ad-form--disabled`);
+  addListeners();
+  window.filter.change();
+  window.form.enable();
 };
 
-let MinPrice = {
-  'bungalow': 0,
-  'flat': 1000,
-  'house': 5000,
-  'palace': 10000
+const disableMap = function () {
+  map.classList.add(`map--faded`);
+  mainPin.style.left = window.move.MainPin.DEFAULT_X;
+  mainPin.style.top = window.move.MainPin.DEFAULT_Y;
+  window.form.disable();
+  window.filter.removePins();
+  window.form.reset();
 };
 
-const onHousingTypeChange = function () {
-  window.consts.priceInput.min = MinPrice[window.consts.housingSelect.value];
-  window.consts.priceInput.placeholder = MinPrice[window.consts.housingSelect.value];
+resetButton.addEventListener('click', disableMap);
+
+const submitHandler = function (evt) {
+  window.backend.upload(window.form.success, window.form.error, new FormData(adForm));
+  evt.preventDefault();
+  disableMap();
 };
 
-const setTimeOption = function (element, value) {
-  element.value = value;
+const addListeners = function () {
+  window.validation.change();
+  adForm.addEventListener(`submit`, submitHandler);
 };
 
-const onTimeoutChange = function (evt) {
-  setTimeOption(window.consts.timeoutSelect, evt.target.value);
-};
-
-const onTimeinChange = function (evt) {
-  setTimeOption(window.consts.timeinSelect, evt.target.value);
-};
-
-const syncRoomsGuests = function (rooms, guests) {
-  if ((guests > rooms && rooms !== 100) || (rooms !== 100 && guests === 0) || (rooms === 100 && guests > 0)) {
-    window.consts.capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
-  } else {
-    window.consts.capacitySelect.setCustomValidity(``);
+const onMouseDown = function (evt) {
+  if (evt.which === window.util.KeyCode.MOUSE_LEFT_CLICK) {
+    activateMap();
   }
 };
 
-window.consts.roomNumberSelect.addEventListener(`change`, function () {
-  roomsNumber = window.consts.roomNumberSelect.value;
-  syncRoomsGuests(roomsNumber, capacityNumber);
-});
-
-window.consts.capacitySelect.addEventListener(`change`, function () {
-  capacityNumber = window.consts.capacitySelect.value;
-  window.consts.capacitySelect.setCustomValidity(``);
-  syncRoomsGuests(roomsNumber, capacityNumber);
-});
-
-window.validation = {
-  syncRoomsGuests: syncRoomsGuests,
-  onHousingTypeChange: onHousingTypeChange,
-  onTimeinChange: onTimeinChange,
-  onTimeoutChange: onTimeoutChange
+const onKeyDown = function (evt) {
+  if (evt.code === window.util.KeyCode.ENTER) {
+    activateMap();
+  }
 };
+
+disableMap();
+mainPin.addEventListener(`mousedown`, onMouseDown);
+mainPin.addEventListener(`keydown`, onKeyDown);
 
 })();
 

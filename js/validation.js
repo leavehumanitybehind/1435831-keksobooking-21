@@ -1,7 +1,14 @@
 "use strict";
 
-let roomsNumber = window.consts.roomNumberSelect.value;
-let capacityNumber = window.consts.capacitySelect.value;
+const adForm = document.querySelector(`.ad-form`);
+const roomNumberSelect = document.querySelector(`#room_number`);
+const capacitySelect = document.querySelector(`#capacity`);
+const housingSelect = adForm.querySelector(`#type`);
+const priceInput = adForm.querySelector(`#price`);
+const timeinSelect = adForm.querySelector(`#timein`);
+const timeoutSelect = adForm.querySelector(`#timeout`);
+let roomsNumber = roomNumberSelect.value;
+let capacityNumber = capacitySelect.value;
 
 const VALIDITY_TEXT = {
   1: `1 комната - для 1 гостя`,
@@ -16,46 +23,59 @@ let MinPrice = {
   'house': 5000,
   'palace': 10000
 };
+const MAX_PRICE = 1000000;
 
 const onHousingTypeChange = function () {
-  window.consts.priceInput.min = MinPrice[window.consts.housingSelect.value];
-  window.consts.priceInput.placeholder = MinPrice[window.consts.housingSelect.value];
+  priceInput.min = MinPrice[housingSelect.value];
+  priceInput.placeholder = MinPrice[housingSelect.value];
 };
+
+const setPriceLimit = function () {
+  if (priceInput.value > MAX_PRICE) {
+    priceInput.setCustomValidity('Максимальная цена ' + MAX_PRICE);
+  }
+};
+
 
 const setTimeOption = function (element, value) {
   element.value = value;
 };
 
 const onTimeoutChange = function (evt) {
-  setTimeOption(window.consts.timeoutSelect, evt.target.value);
+  setTimeOption(timeoutSelect, evt.target.value);
 };
 
 const onTimeinChange = function (evt) {
-  setTimeOption(window.consts.timeinSelect, evt.target.value);
+  setTimeOption(timeinSelect, evt.target.value);
 };
 
 const syncRoomsGuests = function (rooms, guests) {
   if ((guests > rooms && rooms !== 100) || (rooms !== 100 && guests === 0) || (rooms === 100 && guests > 0)) {
-    window.consts.capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
   } else {
-    window.consts.capacitySelect.setCustomValidity(``);
+    capacitySelect.setCustomValidity(``);
   }
 };
 
-window.consts.roomNumberSelect.addEventListener(`change`, function () {
-  roomsNumber = window.consts.roomNumberSelect.value;
+roomNumberSelect.addEventListener(`change`, function () {
+  roomsNumber = roomNumberSelect.value;
   syncRoomsGuests(roomsNumber, capacityNumber);
 });
 
-window.consts.capacitySelect.addEventListener(`change`, function () {
-  capacityNumber = window.consts.capacitySelect.value;
-  window.consts.capacitySelect.setCustomValidity(``);
+capacitySelect.addEventListener(`change`, function () {
+  capacityNumber = capacitySelect.value;
+  capacitySelect.setCustomValidity(``);
   syncRoomsGuests(roomsNumber, capacityNumber);
 });
+
+const changeSelectHandler = function () {
+  housingSelect.addEventListener(`change`, onHousingTypeChange);
+  priceInput.addEventListener(`change`, setPriceLimit);
+  timeinSelect.addEventListener(`change`, onTimeoutChange);
+  timeoutSelect.addEventListener(`change`, onTimeinChange);
+};
+
 
 window.validation = {
-  syncRoomsGuests: syncRoomsGuests,
-  onHousingTypeChange: onHousingTypeChange,
-  onTimeinChange: onTimeinChange,
-  onTimeoutChange: onTimeoutChange
+  change: changeSelectHandler
 };

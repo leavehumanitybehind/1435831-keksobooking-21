@@ -116,6 +116,74 @@ window.backend = {
 })();
 
 (() => {
+/*!**********************!*\
+  !*** ./js/avatar.js ***!
+  \**********************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements:  */
+
+
+const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
+const fileChooser = document.querySelector(`.ad-form__field input[type=file]`);
+const preview = document.querySelector(`.ad-form-header__preview img`);
+
+const showPicture = function () {
+  fileChooser.addEventListener(`change`, function () {
+    const file = fileChooser.files[0];
+    const fileName = file.name.toLowerCase();
+
+    const matches = FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    });
+
+    if (matches) {
+      const reader = new FileReader();
+      reader.addEventListener(`load`, function () {
+        preview.src = reader.result;
+      });
+      reader.readAsDataURL(file);
+    }
+  });
+};
+
+const onAvatarChange = function () {
+  showPicture(fileChooser, preview);
+};
+
+
+fileChooser.addEventListener(`change`, onAvatarChange);
+
+
+})();
+
+(() => {
+/*!************************!*\
+  !*** ./js/debounce.js ***!
+  \************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements:  */
+// Файл debounce.js
+
+
+const DEBOUNCE_INTERVAL = 300;
+
+window.debounce = function (cb) {
+  let lastTimeout = null;
+
+  return function (...parameters) {
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(function () {
+      cb(...parameters);
+    }, DEBOUNCE_INTERVAL);
+  };
+};
+
+
+})();
+
+(() => {
 /*!********************!*\
   !*** ./js/move.js ***!
   \********************/
@@ -354,21 +422,27 @@ window.pin = {
 
 (() => {
 /*!********************!*\
-  !*** ./js/data.js ***!
+  !*** ./js/card.js ***!
   \********************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
 /* eslint-disable object-shorthand */
 
 
-const ROOMS = [1, 2, 3, 100];
-const GUESTS = [1, 2, 3, 0];
-const CHECK_INS = [`12:00`, `13:00`, `14:00`];
-const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
+const HOUSING_TYPES = {
+  palace: `Дворец`,
+  flat: `Квартира`,
+  house: `Дом`,
+  bungalow: `Бунгало`
+};
 
-const Price = {
-  MIN: 1000,
-  MAX: 1000000
+const pinsContainer = document.querySelector(`.map__pins`);
+const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
+
+const onCardEscPress = function (evt) {
+  window.util.isEscKeyCode(evt, function () {
+    pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
+  });
 };
 
 const getFeautures = function (ad, card) {
@@ -384,50 +458,12 @@ const getFeautures = function (ad, card) {
   features.appendChild(fragmentFeatures);
 };
 
-function getPhotos(photos) {
+const getPhotos = function (photos) {
   const imgs = [];
   for (let i = 0; i < photos.length; i++) {
     imgs.push(`<img src="` + photos[i] + `"class="popup__photo" width="45" height = "40" alt = "Photo">`);
   }
   return imgs;
-}
-
-
-window.data = {
-  getFeautures: getFeautures,
-  getPhotos: getPhotos,
-  ROOMS: ROOMS,
-  GUESTS: GUESTS,
-  CHECK_INS: CHECK_INS,
-  PHOTOS: PHOTOS,
-  Price: Price,
-};
-
-})();
-
-(() => {
-/*!********************!*\
-  !*** ./js/card.js ***!
-  \********************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements:  */
-/* eslint-disable object-shorthand */
-
-
-const pinsContainer = document.querySelector(`.map__pins`);
-
-const HOUSING_TYPES = {
-  palace: `Дворец`,
-  flat: `Квартира`,
-  house: `Дом`,
-  bungalow: `Бунгало`
-};
-
-const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
-const onCardEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, function () {
-    pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
-  });
 };
 
 const renderCard = function (ad) {
@@ -450,12 +486,13 @@ const renderCard = function (ad) {
       type.textContent = HOUSING_TYPES.bungalow;
       break;
   }
+
   card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
   card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
   card.querySelector(`.popup__description`).textContent = ad.offer.description;
   card.querySelector(`.popup__avatar`).src = ad.author.avatar;
-  card.querySelector(`.popup__photos`).innerHTML = window.data.getPhotos(ad.offer.photos);
-  window.data.getFeautures(ad, card);
+  card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
+  getFeautures(ad, card);
   card.querySelector(`.popup__close`).addEventListener(`click`, function () {
     pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
     window.pin.disable();
@@ -507,7 +544,7 @@ const HousePrice = {
 
 
 const filtrationByFeatures = function (item) {
-  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll('input:checked');
+  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input:checked`);
   return Array.from(checkedFeaturesItems).every(function (element) {
     return item.offer.features.includes(element.value);
   });
@@ -530,7 +567,7 @@ const filterAd = function (ad) {
   return ((houseTypeSelect.value === Filters.type) ? true : (ad.offer.type === houseTypeSelect.value)) &&
     ((housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
     ((houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === parseInt(houseRoomSelect.value, 10))) &&
-    ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === parseInt(houseGuestSelect.value))) &&
+    ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === parseInt(houseGuestSelect.value, 10))) &&
     filtrationByFeatures(ad);
 };
 
@@ -568,10 +605,10 @@ const updatePins = function (ads) {
   }
 };
 
-const successHandler = function (data) {
+const successHandler = window.debounce(function (data) {
   pins = data;
   updatePins(pins);
-};
+});
 
 const errorHandler = function (errorMessage) {
   window.util.createErrorMessage(errorMessage);
@@ -736,7 +773,7 @@ const disableMap = function () {
   window.form.reset();
 };
 
-resetButton.addEventListener('click', disableMap);
+resetButton.addEventListener(`click`, disableMap);
 
 const submitHandler = function (evt) {
   window.backend.upload(window.form.success, window.form.error, new FormData(adForm));

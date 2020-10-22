@@ -1,8 +1,6 @@
 /* eslint-disable object-shorthand */
 "use strict";
 
-const pinsContainer = document.querySelector(`.map__pins`);
-
 const HOUSING_TYPES = {
   palace: `Дворец`,
   flat: `Квартира`,
@@ -10,11 +8,34 @@ const HOUSING_TYPES = {
   bungalow: `Бунгало`
 };
 
+const pinsContainer = document.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
+
 const onCardEscPress = function (evt) {
   window.util.isEscKeyCode(evt, function () {
     pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
   });
+};
+
+const getFeautures = function (ad, card) {
+  const features = card.querySelector(`.popup__features`);
+  features.innerHTML = ``;
+  const fragmentFeatures = document.createDocumentFragment();
+  for (let i = 0; i < ad.offer.features.length; i++) {
+    const newFeature = document.createElement(`li`);
+    newFeature.classList.add(`popup__feature`);
+    newFeature.classList.add(`popup__feature--` + ad.offer.features[i]);
+    fragmentFeatures.appendChild(newFeature);
+  }
+  features.appendChild(fragmentFeatures);
+};
+
+const getPhotos = function (photos) {
+  const imgs = [];
+  for (let i = 0; i < photos.length; i++) {
+    imgs.push(`<img src="` + photos[i] + `"class="popup__photo" width="45" height = "40" alt = "Photo">`);
+  }
+  return imgs;
 };
 
 const renderCard = function (ad) {
@@ -37,12 +58,13 @@ const renderCard = function (ad) {
       type.textContent = HOUSING_TYPES.bungalow;
       break;
   }
+
   card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
   card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
   card.querySelector(`.popup__description`).textContent = ad.offer.description;
   card.querySelector(`.popup__avatar`).src = ad.author.avatar;
-  card.querySelector(`.popup__photos`).innerHTML = window.data.getPhotos(ad.offer.photos);
-  window.data.getFeautures(ad, card);
+  card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
+  getFeautures(ad, card);
   card.querySelector(`.popup__close`).addEventListener(`click`, function () {
     pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
     window.pin.disable();

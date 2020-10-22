@@ -88,10 +88,10 @@ const updatePins = function (ads) {
   }
 };
 
-const successHandler = function (data) {
+const successHandler = window.debounce(function (data) {
   pins = data;
   updatePins(pins);
-};
+});
 
 const errorHandler = function (errorMessage) {
   window.util.createErrorMessage(errorMessage);

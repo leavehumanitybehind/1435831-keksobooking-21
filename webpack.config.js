@@ -3,10 +3,11 @@ module.exports = {
   entry: [
     "./js/util.js",
     "./js/backend.js",
+    "./js/avatar.js",
+    "./js/debounce.js",
     "./js/move.js",
     "./js/validation.js",
     "./js/pin.js",
-    "./js/data.js",
     "./js/card.js",
     "./js/filter.js",
     "./js/form.js",

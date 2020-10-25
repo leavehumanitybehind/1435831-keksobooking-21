@@ -11,11 +11,6 @@ const HOUSING_TYPES = {
 const pinsContainer = document.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 
-const onCardEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, function () {
-    pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
-  });
-};
 
 const getFeautures = function (ad, card) {
   const features = card.querySelector(`.popup__features`);
@@ -38,6 +33,18 @@ const getPhotos = function (photos) {
   return imgs;
 };
 
+const disableCard = function () {
+  const popup = pinsContainer.querySelector(`.map__card`);
+  window.pin.disable();
+  if (popup) {
+    pinsContainer.removeChild(popup);
+  }
+};
+
+const onCardEscPress = function (evt) {
+  window.util.isEscKeyCode(evt, disableCard());
+};
+
 const renderCard = function (ad) {
   const card = cardTemplate.cloneNode(true);
   card.querySelector(`.popup__title`).textContent = ad.offer.title;
@@ -58,23 +65,22 @@ const renderCard = function (ad) {
       type.textContent = HOUSING_TYPES.bungalow;
       break;
   }
-
   card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
   card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
   card.querySelector(`.popup__description`).textContent = ad.offer.description;
   card.querySelector(`.popup__avatar`).src = ad.author.avatar;
   card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
   getFeautures(ad, card);
-  card.querySelector(`.popup__close`).addEventListener(`click`, function () {
-    pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
-    window.pin.disable();
-  });
+
+  card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
   document.addEventListener(`keydown`, onCardEscPress);
   return card;
 };
 
+
 window.card = {
-  render: renderCard
+  render: renderCard,
+  disable: disableCard
 };
 
 

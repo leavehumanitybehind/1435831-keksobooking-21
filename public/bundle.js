@@ -379,6 +379,7 @@ window.validation = {
 const pinTemplate = document.querySelector(`#pin`).content;
 const mapPin = pinTemplate.querySelector(`.map__pin`);
 
+
 const PinSize = {
   WIDTH: 50,
   HEIGHT: 70
@@ -387,7 +388,10 @@ const PinSize = {
 let activePin = false;
 
 const disablePin = function () {
-  activePin.classList.remove(`map__pin--active`);
+  const allPins = document.querySelectorAll(`.map__pin`);
+  allPins.forEach(function (pin) {
+    pin.classList.remove(`map__pin--active`);
+  });
 };
 
 const activatePin = function (pin) {
@@ -397,6 +401,7 @@ const activatePin = function (pin) {
   activePin = pin;
   activePin.classList.add(`map__pin--active`);
 };
+
 
 const renderPins = function (ad) {
   const pinsTemplate = mapPin.cloneNode(true);
@@ -439,11 +444,6 @@ const HOUSING_TYPES = {
 const pinsContainer = document.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 
-const onCardEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, function () {
-    pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
-  });
-};
 
 const getFeautures = function (ad, card) {
   const features = card.querySelector(`.popup__features`);
@@ -466,6 +466,18 @@ const getPhotos = function (photos) {
   return imgs;
 };
 
+const disableCard = function () {
+  const popup = pinsContainer.querySelector(`.map__card`);
+  window.pin.disable();
+  if (popup) {
+    pinsContainer.removeChild(popup);
+  }
+};
+
+const onCardEscPress = function (evt) {
+  window.util.isEscKeyCode(evt, disableCard());
+};
+
 const renderCard = function (ad) {
   const card = cardTemplate.cloneNode(true);
   card.querySelector(`.popup__title`).textContent = ad.offer.title;
@@ -486,23 +498,22 @@ const renderCard = function (ad) {
       type.textContent = HOUSING_TYPES.bungalow;
       break;
   }
-
   card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
   card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
   card.querySelector(`.popup__description`).textContent = ad.offer.description;
   card.querySelector(`.popup__avatar`).src = ad.author.avatar;
   card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
   getFeautures(ad, card);
-  card.querySelector(`.popup__close`).addEventListener(`click`, function () {
-    pinsContainer.removeChild(pinsContainer.querySelector(`.map__card`));
-    window.pin.disable();
-  });
+
+  card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
   document.addEventListener(`keydown`, onCardEscPress);
   return card;
 };
 
+
 window.card = {
-  render: renderCard
+  render: renderCard,
+  disable: disableCard
 };
 
 
@@ -524,7 +535,6 @@ const housePriceSelect = document.querySelector(`#housing-price`);
 const houseRoomSelect = document.querySelector(`#housing-rooms`);
 const houseGuestSelect = document.querySelector(`#housing-guests`);
 const houseFeaturesSelect = document.querySelector(`#housing-features`);
-const card = pinsContainer.querySelector(`.map__card`);
 const MAX_PINS = 5;
 let pins = [];
 let activePin = false;
@@ -542,14 +552,12 @@ const HousePrice = {
   max: 50000
 };
 
-
-const filtrationByFeatures = function (item) {
+const checkFeatures = function (ad) {
   const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input:checked`);
-  return Array.from(checkedFeaturesItems).every(function (element) {
-    return item.offer.features.includes(element.value);
+  return Array.from(checkedFeaturesItems).every(function (item) {
+    return ad.offer.features.includes(item.ad);
   });
 };
-
 
 const checkPrice = function (ad) {
   switch (housePriceSelect.value) {
@@ -568,7 +576,7 @@ const filterAd = function (ad) {
     ((housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
     ((houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === parseInt(houseRoomSelect.value, 10))) &&
     ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === parseInt(houseGuestSelect.value, 10))) &&
-    filtrationByFeatures(ad);
+    checkFeatures(ad);
 };
 
 const getFilteredPins = function (ads) {
@@ -576,13 +584,13 @@ const getFilteredPins = function (ads) {
   return similiars.slice(0, MAX_PINS);
 };
 
-
 const onPinClick = function (pin, ad) {
   pin.addEventListener(`click`, function (evt) {
     if (activePin !== evt.currentTarget) {
       pinsContainer.appendChild(window.card.render(ad));
       window.pin.activate(evt.currentTarget);
     }
+
   });
 };
 
@@ -598,23 +606,24 @@ const updatePins = function (ads) {
   removePins();
 
   const numberOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
-  for (let k = 0; k < numberOfPins; k++) {
-    const currentPin = window.pin.render(ads[k]);
+  for (let i = 0; i < numberOfPins; i++) {
+    const currentPin = window.pin.render(ads[i]);
     pinsContainer.appendChild(currentPin);
-    onPinClick(currentPin, ads[k]);
+    onPinClick(currentPin, ads[i]);
   }
 };
 
-const successHandler = window.debounce(function (data) {
+const onSuccessLoad = window.debounce(function (data) {
   pins = data;
   updatePins(pins);
 });
 
-const errorHandler = function (errorMessage) {
+const onErrorLoad = function (errorMessage) {
   window.util.createErrorMessage(errorMessage);
 };
 
-const changeFilterHandler = function () {
+
+const addChangeListeners = function () {
   houseTypeSelect.addEventListener(`change`, onFilterChange);
   housePriceSelect.addEventListener(`change`, onFilterChange);
   houseRoomSelect.addEventListener(`change`, onFilterChange);
@@ -623,18 +632,16 @@ const changeFilterHandler = function () {
 };
 
 const onFilterChange = function () {
-  if (card) {
-    pinsContainer.removeChild(card);
-  }
-  changeFilterHandler();
-  window.backend.load(successHandler, errorHandler);
+  window.card.disable();
+  window.pin.disable();
+  addChangeListeners();
+  window.backend.load(onSuccessLoad, onErrorLoad);
 };
-
 
 window.filter = {
   change: onFilterChange,
-  error: errorHandler,
-  success: successHandler,
+  error: onErrorLoad,
+  success: onSuccessLoad,
   removePins: removePins
 };
 
@@ -661,13 +668,29 @@ const mapFiltersSelects = mapFiltersForm.querySelectorAll(`select`);
 const adFormSelects = adForm.querySelectorAll(`select`);
 const fieldsets = adForm.querySelectorAll(`.fieldset`);
 const inputs = adForm.querySelectorAll(`input`);
+const houseFeaturesSelect = document.querySelector(`#housing-features`);
 
 const resetForm = function () {
-  adForm.querySelectorAll(`input`).forEach(function (element) {
-    element.value = ``;
-    return element;
+  adForm.querySelectorAll(`input`).forEach(function (item) {
+    item.value = ``;
+    return item;
   });
   window.move.setAddress(mainPin);
+
+};
+
+const resetFilters = function () {
+  mapFiltersForm.querySelectorAll(`select`).forEach(function (item) {
+    item.value = `any`;
+    return item;
+  });
+  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input[type=checkbox]`);
+  checkedFeaturesItems.forEach(function (input) {
+    if (input.checked) {
+      input.checked = false;
+    }
+    return input;
+  });
 };
 
 const disableFormControls = function (controls) {
@@ -732,6 +755,7 @@ window.form = {
   enable: enableForm,
   disable: disableForm,
   reset: resetForm,
+  resetFilters: resetFilters,
   success: successMessage,
   error: errorMessage
 };
@@ -766,11 +790,10 @@ const activateMap = function () {
 
 const disableMap = function () {
   map.classList.add(`map--faded`);
-  mainPin.style.left = window.move.MainPin.DEFAULT_X;
-  mainPin.style.top = window.move.MainPin.DEFAULT_Y;
   window.form.disable();
   window.filter.removePins();
   window.form.reset();
+  window.form.resetFilters();
 };
 
 resetButton.addEventListener(`click`, disableMap);

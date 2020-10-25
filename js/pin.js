@@ -4,6 +4,7 @@
 const pinTemplate = document.querySelector(`#pin`).content;
 const mapPin = pinTemplate.querySelector(`.map__pin`);
 
+
 const PinSize = {
   WIDTH: 50,
   HEIGHT: 70
@@ -12,7 +13,10 @@ const PinSize = {
 let activePin = false;
 
 const disablePin = function () {
-  activePin.classList.remove(`map__pin--active`);
+  const allPins = document.querySelectorAll(`.map__pin`);
+  allPins.forEach(function (pin) {
+    pin.classList.remove(`map__pin--active`);
+  });
 };
 
 const activatePin = function (pin) {
@@ -22,6 +26,7 @@ const activatePin = function (pin) {
   activePin = pin;
   activePin.classList.add(`map__pin--active`);
 };
+
 
 const renderPins = function (ad) {
   const pinsTemplate = mapPin.cloneNode(true);

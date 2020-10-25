@@ -7,7 +7,6 @@ const housePriceSelect = document.querySelector(`#housing-price`);
 const houseRoomSelect = document.querySelector(`#housing-rooms`);
 const houseGuestSelect = document.querySelector(`#housing-guests`);
 const houseFeaturesSelect = document.querySelector(`#housing-features`);
-const card = pinsContainer.querySelector(`.map__card`);
 const MAX_PINS = 5;
 let pins = [];
 let activePin = false;
@@ -25,14 +24,12 @@ const HousePrice = {
   max: 50000
 };
 
-
-const filtrationByFeatures = function (item) {
+const checkFeatures = function (ad) {
   const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input:checked`);
-  return Array.from(checkedFeaturesItems).every(function (element) {
-    return item.offer.features.includes(element.value);
+  return Array.from(checkedFeaturesItems).every(function (item) {
+    return ad.offer.features.includes(item.ad);
   });
 };
-
 
 const checkPrice = function (ad) {
   switch (housePriceSelect.value) {
@@ -51,7 +48,7 @@ const filterAd = function (ad) {
     ((housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
     ((houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === parseInt(houseRoomSelect.value, 10))) &&
     ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === parseInt(houseGuestSelect.value, 10))) &&
-    filtrationByFeatures(ad);
+    checkFeatures(ad);
 };
 
 const getFilteredPins = function (ads) {
@@ -59,13 +56,13 @@ const getFilteredPins = function (ads) {
   return similiars.slice(0, MAX_PINS);
 };
 
-
 const onPinClick = function (pin, ad) {
   pin.addEventListener(`click`, function (evt) {
     if (activePin !== evt.currentTarget) {
       pinsContainer.appendChild(window.card.render(ad));
       window.pin.activate(evt.currentTarget);
     }
+
   });
 };
 
@@ -81,23 +78,24 @@ const updatePins = function (ads) {
   removePins();
 
   const numberOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
-  for (let k = 0; k < numberOfPins; k++) {
-    const currentPin = window.pin.render(ads[k]);
+  for (let i = 0; i < numberOfPins; i++) {
+    const currentPin = window.pin.render(ads[i]);
     pinsContainer.appendChild(currentPin);
-    onPinClick(currentPin, ads[k]);
+    onPinClick(currentPin, ads[i]);
   }
 };
 
-const successHandler = window.debounce(function (data) {
+const onSuccessLoad = window.debounce(function (data) {
   pins = data;
   updatePins(pins);
 });
 
-const errorHandler = function (errorMessage) {
+const onErrorLoad = function (errorMessage) {
   window.util.createErrorMessage(errorMessage);
 };
 
-const changeFilterHandler = function () {
+
+const addChangeListeners = function () {
   houseTypeSelect.addEventListener(`change`, onFilterChange);
   housePriceSelect.addEventListener(`change`, onFilterChange);
   houseRoomSelect.addEventListener(`change`, onFilterChange);
@@ -106,18 +104,16 @@ const changeFilterHandler = function () {
 };
 
 const onFilterChange = function () {
-  if (card) {
-    pinsContainer.removeChild(card);
-  }
-  changeFilterHandler();
-  window.backend.load(successHandler, errorHandler);
+  window.card.disable();
+  window.pin.disable();
+  addChangeListeners();
+  window.backend.load(onSuccessLoad, onErrorLoad);
 };
-
 
 window.filter = {
   change: onFilterChange,
-  error: errorHandler,
-  success: successHandler,
+  error: onErrorLoad,
+  success: onSuccessLoad,
   removePins: removePins
 };
 

@@ -18,11 +18,10 @@ const activateMap = function () {
 
 const disableMap = function () {
   map.classList.add(`map--faded`);
-  mainPin.style.left = window.move.MainPin.DEFAULT_X;
-  mainPin.style.top = window.move.MainPin.DEFAULT_Y;
   window.form.disable();
   window.filter.removePins();
   window.form.reset();
+  window.form.resetFilters();
 };
 
 resetButton.addEventListener(`click`, disableMap);

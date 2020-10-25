@@ -11,13 +11,29 @@ const mapFiltersSelects = mapFiltersForm.querySelectorAll(`select`);
 const adFormSelects = adForm.querySelectorAll(`select`);
 const fieldsets = adForm.querySelectorAll(`.fieldset`);
 const inputs = adForm.querySelectorAll(`input`);
+const houseFeaturesSelect = document.querySelector(`#housing-features`);
 
 const resetForm = function () {
-  adForm.querySelectorAll(`input`).forEach(function (element) {
-    element.value = ``;
-    return element;
+  adForm.querySelectorAll(`input`).forEach(function (item) {
+    item.value = ``;
+    return item;
   });
   window.move.setAddress(mainPin);
+
+};
+
+const resetFilters = function () {
+  mapFiltersForm.querySelectorAll(`select`).forEach(function (item) {
+    item.value = `any`;
+    return item;
+  });
+  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input[type=checkbox]`);
+  checkedFeaturesItems.forEach(function (input) {
+    if (input.checked) {
+      input.checked = false;
+    }
+    return input;
+  });
 };
 
 const disableFormControls = function (controls) {
@@ -82,6 +98,7 @@ window.form = {
   enable: enableForm,
   disable: disableForm,
   reset: resetForm,
+  resetFilters: resetFilters,
   success: successMessage,
   error: errorMessage
 };

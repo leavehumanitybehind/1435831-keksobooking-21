@@ -19,14 +19,16 @@ const activateMap = function () {
 const disableMap = function () {
   map.classList.add(`map--faded`);
   window.form.disable();
-  window.filter.removePins();
+  window.pin.remove();
   window.form.reset();
   window.form.resetFilters();
+  window.move.setAddress(mainPin);
+  window.filter.remove();
+  removeListeners();
 };
 
-resetButton.addEventListener(`click`, disableMap);
 
-const submitHandler = function (evt) {
+const onSubmitForm = function (evt) {
   window.backend.upload(window.form.success, window.form.error, new FormData(adForm));
   evt.preventDefault();
   disableMap();
@@ -34,21 +36,31 @@ const submitHandler = function (evt) {
 
 const addListeners = function () {
   window.validation.change();
-  adForm.addEventListener(`submit`, submitHandler);
+  adForm.addEventListener(`submit`, onSubmitForm);
 };
+
+const removeListeners = function () {
+  window.validation.remove();
+  adForm.removeEventListener(`submit`, onSubmitForm);
+  resetButton.removeEventListener(`click`, disableMap);
+};
+
 
 const onMouseDown = function (evt) {
   if (evt.which === window.util.KeyCode.MOUSE_LEFT_CLICK) {
     activateMap();
   }
+  mainPin.removeEventListener(`mousedown`, onMouseDown);
 };
 
 const onKeyDown = function (evt) {
   if (evt.code === window.util.KeyCode.ENTER) {
     activateMap();
   }
+  mainPin.removeEventListener(`keydown`, onKeyDown);
 };
 
 disableMap();
+resetButton.addEventListener(`click`, disableMap);
 mainPin.addEventListener(`mousedown`, onMouseDown);
 mainPin.addEventListener(`keydown`, onKeyDown);

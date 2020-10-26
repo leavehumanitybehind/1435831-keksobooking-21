@@ -3,7 +3,7 @@
 
 const pinTemplate = document.querySelector(`#pin`).content;
 const mapPin = pinTemplate.querySelector(`.map__pin`);
-
+const pinsContainer = document.querySelector(`.map__pins`);
 
 const PinSize = {
   WIDTH: 50,
@@ -38,12 +38,19 @@ const renderPins = function (ad) {
   return pinsTemplate;
 };
 
+const removePins = function () {
+  const allPins = pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+  allPins.forEach(function (pin) {
+    pinsContainer.removeChild(pin);
+  });
+};
 
 window.pin = {
   size: PinSize,
   disable: disablePin,
   render: renderPins,
-  activate: activatePin
+  activate: activatePin,
+  remove: removePins
 
 };
 

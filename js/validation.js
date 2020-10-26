@@ -28,12 +28,13 @@ const MAX_PRICE = 1000000;
 const onHousingTypeChange = function () {
   priceInput.min = MinPrice[housingSelect.value];
   priceInput.placeholder = MinPrice[housingSelect.value];
+  let minPrice = MinPrice[adForm.type.value];
+  adForm.price.setAttribute(`min`, minPrice);
 };
 
 const setPriceLimit = function () {
-  if (priceInput.value > MAX_PRICE) {
-    priceInput.setCustomValidity('Максимальная цена ' + MAX_PRICE);
-  }
+  return (priceInput.value > MAX_PRICE) ? priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE) :
+    priceInput.setCustomValidity(``);
 };
 
 
@@ -50,11 +51,9 @@ const onTimeinChange = function (evt) {
 };
 
 const syncRoomsGuests = function (rooms, guests) {
-  if ((guests > rooms && rooms !== 100) || (rooms !== 100 && guests === 0) || (rooms === 100 && guests > 0)) {
-    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
-  } else {
+  return ((guests > rooms && rooms !== 100) || (rooms !== 100 && guests === 0) || (rooms === 100 && guests > 0)) ?
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]) :
     capacitySelect.setCustomValidity(``);
-  }
 };
 
 roomNumberSelect.addEventListener(`change`, function () {
@@ -68,14 +67,22 @@ capacitySelect.addEventListener(`change`, function () {
   syncRoomsGuests(roomsNumber, capacityNumber);
 });
 
-const changeSelectHandler = function () {
+const onChangeSelect = function () {
   housingSelect.addEventListener(`change`, onHousingTypeChange);
   priceInput.addEventListener(`change`, setPriceLimit);
   timeinSelect.addEventListener(`change`, onTimeoutChange);
   timeoutSelect.addEventListener(`change`, onTimeinChange);
 };
 
+const onRemoveSelect = function () {
+  housingSelect.removeEventListener(`change`, onHousingTypeChange);
+  priceInput.removeEventListener(`change`, setPriceLimit);
+  timeinSelect.removeEventListener(`change`, onTimeoutChange);
+  timeoutSelect.removeEventListener(`change`, onTimeinChange);
+};
+
 
 window.validation = {
-  change: changeSelectHandler
+  change: onChangeSelect,
+  remove: onRemoveSelect
 };

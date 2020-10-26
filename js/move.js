@@ -2,19 +2,15 @@
 
 const mainPin = document.querySelector(`.map__pin--main`);
 const map = document.querySelector(`.map`);
+const MAIN_PIN_MIN_Y = 130;
+const MAIN_PIN_MAX_Y = 630;
+const MAIN_PIN_MIN_X = 0;
 
 const MainPin = {
   WIDTH: 65,
-  HEIGHT: 84,
+  HEIGHT: 65,
   DEFAULT_X: `570px`,
   DEFAULT_Y: `375px`,
-  y: {
-    MIN: 130,
-    MAX: 630
-  },
-  x: {
-    MIN: 0
-  }
 };
 
 const getMainPinCoords = function () {
@@ -55,11 +51,11 @@ mainPin.addEventListener(`mousedown`, function (evt) {
     };
 
     let mainPinCoords = getMainPinCoords();
-    if (mainPinCoords.y - shift.y >= MainPin.y.MIN && mainPinCoords.y - shift.y <= MainPin.y.MAX) {
+    if (mainPinCoords.y - shift.y >= MAIN_PIN_MIN_Y && mainPinCoords.y - shift.y <= MAIN_PIN_MAX_Y) {
       mainPin.style.top = mainPin.offsetTop - shift.y + `px`;
     }
 
-    if (mainPinCoords.x - shift.x >= MainPin.x.MIN && mainPinCoords.x - shift.x <= map.offsetWidth) {
+    if (mainPinCoords.x - shift.x >= MAIN_PIN_MIN_X && mainPinCoords.x - shift.x <= map.offsetWidth) {
       mainPin.style.left = mainPin.offsetLeft - shift.x + `px`;
     }
     setAddress(mainPinCoords);

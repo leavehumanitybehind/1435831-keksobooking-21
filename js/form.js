@@ -5,21 +5,30 @@ const adForm = document.querySelector(`.ad-form`);
 const success = document.querySelector(`#success`).content;
 const error = document.querySelector(`#error`).content;
 const main = document.querySelector(`main`);
-const mainPin = document.querySelector(`.map__pin--main`);
 const mapFiltersForm = document.querySelector(`.map__filters`);
 const mapFiltersSelects = mapFiltersForm.querySelectorAll(`select`);
 const adFormSelects = adForm.querySelectorAll(`select`);
 const fieldsets = adForm.querySelectorAll(`.fieldset`);
 const inputs = adForm.querySelectorAll(`input`);
 const houseFeaturesSelect = document.querySelector(`#housing-features`);
+const checkedFeaturesFilters = houseFeaturesSelect.querySelectorAll(`input[type=checkbox]`);
+const checkedFeaturesItems = adForm.querySelectorAll(`.feature__checkbox`);
+
+const resetCheckbox = function (items) {
+  items.forEach(function (item) {
+    if (item.checked) {
+      item.checked = false;
+    }
+    return item;
+  });
+};
 
 const resetForm = function () {
   adForm.querySelectorAll(`input`).forEach(function (item) {
     item.value = ``;
     return item;
   });
-  window.move.setAddress(mainPin);
-
+  resetCheckbox(checkedFeaturesItems);
 };
 
 const resetFilters = function () {
@@ -27,13 +36,7 @@ const resetFilters = function () {
     item.value = `any`;
     return item;
   });
-  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input[type=checkbox]`);
-  checkedFeaturesItems.forEach(function (input) {
-    if (input.checked) {
-      input.checked = false;
-    }
-    return input;
-  });
+  resetCheckbox(checkedFeaturesFilters);
 };
 
 const disableFormControls = function (controls) {
@@ -53,6 +56,7 @@ const enableControls = function (controls) {
 const closeErrorMessage = function () {
   main.removeChild(main.querySelector(`.error`));
   document.removeEventListener(`keydown`, onErrorEscPress);
+  document.removeEventListener(`click`, closeErrorMessage);
 };
 
 const onErrorEscPress = function (evt) {
@@ -72,6 +76,7 @@ const onSuccessEscPress = function (evt) {
 const closeSuccessMessage = function () {
   main.removeChild(main.querySelector(`.success`));
   document.removeEventListener(`keydown`, onSuccessEscPress);
+  document.removeEventListener(`click`, closeSuccessMessage);
 };
 
 const successMessage = function () {

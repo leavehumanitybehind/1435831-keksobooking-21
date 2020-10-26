@@ -447,7 +447,6 @@ const HOUSING_TYPES = {
 
 const pinsContainer = document.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
-const popup = pinsContainer.querySelector(`.map__card`);
 
 
 const getFeautures = function (ad, card) {
@@ -472,10 +471,10 @@ const getPhotos = function (photos) {
 };
 
 const disableCard = function () {
+  const popup = pinsContainer.querySelector(`.map__card`);
   window.pin.disable();
   if (popup) {
     pinsContainer.removeChild(popup);
-    popup.querySelector(`.map__card`).querySelector(`.popup__close`).removeEventListener(`click`, disableCard);
   }
 };
 
@@ -513,7 +512,7 @@ const renderCard = function (ad) {
   card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
   getFeautures(ad, card);
 
-  card.querySelector(`.map__card`).querySelector(`.popup__close`).addEventListener(`click`, disableCard);
+  card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
   document.addEventListener(`keydown`, onCardEscPress);
   return card;
 };
@@ -560,6 +559,12 @@ const HousePrice = {
   max: 50000
 };
 
+const HousePriceType = {
+  LOW: `low`,
+  MEDIUM: `medium`,
+  HIGH: `high`
+};
+
 const checkFeatures = function (ad) {
   const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input:checked`);
   return Array.from(checkedFeaturesItems).every(function (item) {
@@ -569,11 +574,11 @@ const checkFeatures = function (ad) {
 
 const checkPrice = function (ad) {
   switch (housePriceSelect.value) {
-    case `low`:
+    case HousePriceType.LOW:
       return (ad.offer.price < HousePrice.min);
-    case `medium`:
+    case HousePriceType.MEDIUM:
       return ad.offer.price >= HousePrice.min && ad.offer.price <= HousePrice.max;
-    case `high`:
+    case HousePriceType.HIGH:
       return ad.offer.price > HousePrice.max;
   }
   return false;
@@ -596,11 +601,9 @@ const onPinClick = function (pin, ad) {
   pin.addEventListener(`click`, function (evt) {
     window.card.disable();
     if (activePin !== evt.currentTarget) {
-
       pinsContainer.appendChild(window.card.render(ad));
       window.pin.activate(evt.currentTarget);
     }
-
   });
 };
 

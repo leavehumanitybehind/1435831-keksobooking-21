@@ -66,11 +66,9 @@ const onPinClick = function (pin, ad) {
   pin.addEventListener(`click`, function (evt) {
     window.card.disable();
     if (activePin !== evt.currentTarget) {
-
       pinsContainer.appendChild(window.card.render(ad));
       window.pin.activate(evt.currentTarget);
     }
-
   });
 };
 

@@ -10,7 +10,6 @@ const HOUSING_TYPES = {
 
 const pinsContainer = document.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
-const popup = pinsContainer.querySelector(`.map__card`);
 
 
 const getFeautures = function (ad, card) {
@@ -35,10 +34,10 @@ const getPhotos = function (photos) {
 };
 
 const disableCard = function () {
+  const popup = pinsContainer.querySelector(`.map__card`);
   window.pin.disable();
   if (popup) {
     pinsContainer.removeChild(popup);
-    popup.querySelector(`.map__card`).querySelector(`.popup__close`).removeEventListener(`click`, disableCard);
   }
 };
 
@@ -76,7 +75,7 @@ const renderCard = function (ad) {
   card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
   getFeautures(ad, card);
 
-  card.querySelector(`.map__card`).querySelector(`.popup__close`).addEventListener(`click`, disableCard);
+  card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
   document.addEventListener(`keydown`, onCardEscPress);
   return card;
 };

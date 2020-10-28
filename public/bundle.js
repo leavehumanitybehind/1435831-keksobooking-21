@@ -12,8 +12,8 @@
 const KeyCode = {
   ENTER: `Enter`,
   ESCAPE: `Escape`,
-  MOUSE_LEFT_CLICK: 1
 };
+
 
 const isEscKeyCode = function (evt) {
   return evt.KeyCode === KeyCode.ESCAPE;
@@ -39,7 +39,7 @@ const createErrorMessage = function (message) {
 window.util = {
   isEscKeyCode: isEscKeyCode,
   createErrorMessage: createErrorMessage,
-  KeyCode: KeyCode
+  KeyCode: KeyCode,
 };
 
 
@@ -58,19 +58,20 @@ const URL_ADDRESS = {
   load: `https://21.javascript.pages.academy/keksobooking/data`,
   upload: `https://21.javascript.pages.academy/keksobooking/`
 };
+
 const CODE_STATUS_OK = 200;
 const TIMEOUT_IN_MS = 10000;
 
 const getXhr = function (onSuccess, onError) {
-  let xhr = new XMLHttpRequest();
+  const xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
   xhr.addEventListener(`load`, function () {
     if (xhr.status === CODE_STATUS_OK) {
       onSuccess(xhr.response);
-    } else {
-      onError(`Статус ошибки: ` + xhr.status + ` ` + xhr.statusText);
+      return;
     }
+    onError(`Статус ошибки: ` + xhr.status + ` ` + xhr.statusText);
   });
   xhr.addEventListener(`error`, function () {
     onError(`Произошла ошибка соединения. Пожалуйста обновите страницу`);
@@ -84,21 +85,21 @@ const getXhr = function (onSuccess, onError) {
   return xhr;
 };
 
-const onUpload = function (onSuccess, onError, data) {
+const upload = function (onSuccess, onError, data) {
   const xhr = getXhr(onSuccess, onError);
   xhr.open(`POST`, URL_ADDRESS.upload);
   xhr.send(data);
 };
 
-const onLoad = function (onSuccess, onError) {
-  let xhr = getXhr(onSuccess, onError);
+const load = function (onSuccess, onError) {
+  const xhr = getXhr(onSuccess, onError);
   xhr.open(`GET`, URL_ADDRESS.load);
   xhr.send();
 };
 
 window.backend = {
-  load: onLoad,
-  upload: onUpload
+  load: load,
+  upload: upload
 };
 
 
@@ -131,10 +132,21 @@ const showPicture = function (fileChooser, preview) {
       const reader = new FileReader();
       reader.addEventListener(`load`, function () {
         preview.src = reader.result;
+        preview.setAttribute(`width`, `100%`);
+        preview.setAttribute(`height`, `100%`);
       });
       reader.readAsDataURL(file);
     }
   });
+};
+
+const resetPreview = function (preview) {
+  preview.src = `img/muffin-grey.svg`;
+};
+
+const resetPhotos = function () {
+  resetPreview(avatarPreview);
+  resetPreview(housePreview);
 };
 
 const onPhotoChange = function () {
@@ -146,6 +158,10 @@ const onPhotoChange = function () {
 
 avatarFileChooser.addEventListener(`change`, onPhotoChange);
 houseFileChooser.addEventListener(`change`, onPhotoChange);
+
+window.photo = {
+  reset: resetPhotos
+};
 
 
 })();
@@ -187,15 +203,13 @@ window.debounce = function (cb) {
 
 const mainPin = document.querySelector(`.map__pin--main`);
 const map = document.querySelector(`.map`);
-const MAIN_PIN_MIN_Y = 130;
-const MAIN_PIN_MAX_Y = 630;
-const MAIN_PIN_MIN_X = 0;
-
+const address = document.querySelector(`#address`);
 const MainPin = {
   WIDTH: 65,
   HEIGHT: 65,
-  DEFAULT_X: `570px`,
-  DEFAULT_Y: `375px`,
+  MIN_Y: 130,
+  MAX_Y: 630,
+  MIN_X: 0
 };
 
 const getMainPinCoords = function () {
@@ -210,7 +224,6 @@ const getMainPinCoords = function () {
 
 const setAddress = function () {
   const mainPinCoords = getMainPinCoords();
-  const address = document.querySelector(`#address`);
   address.value = mainPinCoords.x + `,` + mainPinCoords.y;
 };
 
@@ -225,7 +238,7 @@ mainPin.addEventListener(`mousedown`, function (evt) {
   const onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
 
-    let shift = {
+    const shift = {
       x: startCoords.x - moveEvt.clientX,
       y: startCoords.y - moveEvt.clientY
     };
@@ -235,12 +248,12 @@ mainPin.addEventListener(`mousedown`, function (evt) {
       y: moveEvt.clientY
     };
 
-    let mainPinCoords = getMainPinCoords();
-    if (mainPinCoords.y - shift.y >= MAIN_PIN_MIN_Y && mainPinCoords.y - shift.y <= MAIN_PIN_MAX_Y) {
+    const mainPinCoords = getMainPinCoords();
+    if (mainPinCoords.y - shift.y >= MainPin.MIN_Y && mainPinCoords.y - shift.y <= MainPin.MAX_Y) {
       mainPin.style.top = mainPin.offsetTop - shift.y + `px`;
     }
 
-    if (mainPinCoords.x - shift.x >= MAIN_PIN_MIN_X && mainPinCoords.x - shift.x <= map.offsetWidth) {
+    if (mainPinCoords.x - shift.x >= MainPin.MIN_X && mainPinCoords.x - shift.x <= map.offsetWidth) {
       mainPin.style.left = mainPin.offsetLeft - shift.x + `px`;
     }
     setAddress(mainPinCoords);
@@ -259,9 +272,8 @@ mainPin.addEventListener(`mousedown`, function (evt) {
 });
 
 window.move = {
-  getMainPinCoords: getMainPinCoords,
-  setAddress: setAddress,
-  MainPin: MainPin
+  getCoords: getMainPinCoords,
+  address: setAddress,
 };
 
 
@@ -308,13 +320,16 @@ const onHousingTypeChange = function () {
 };
 
 const setPriceLimit = function () {
-  return (priceInput.value > MAX_PRICE) ? priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE) :
-    priceInput.setCustomValidity(``);
+  if (priceInput.value > MAX_PRICE) {
+    priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE);
+    return;
+  }
+  priceInput.setCustomValidity(``);
 };
 
 
-const setTimeOption = function (element, value) {
-  element.value = value;
+const setTimeOption = function (timeSelect, value) {
+  timeSelect.value = value;
 };
 
 const onTimeoutChange = function (evt) {
@@ -326,9 +341,19 @@ const onTimeinChange = function (evt) {
 };
 
 const syncRoomsGuests = function (rooms, guests) {
-  return ((guests > rooms && rooms !== 100) || (rooms !== 100 && guests === 0) || (rooms === 100 && guests > 0)) ?
-    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]) :
-    capacitySelect.setCustomValidity(``);
+  if (guests > rooms && rooms !== 100) {
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    return;
+  }
+  if (rooms !== 100 && guests === 0) {
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    return;
+  }
+  if (rooms === 100 && guests > 0) {
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    return;
+  }
+  capacitySelect.setCustomValidity(``);
 };
 
 roomNumberSelect.addEventListener(`change`, function () {
@@ -382,25 +407,23 @@ const PinSize = {
   HEIGHT: 70
 };
 
-let activePin = false;
-
 const disablePin = function () {
-  const allPins = document.querySelectorAll(`.map__pin`);
-  allPins.forEach(function (pin) {
-    pin.classList.remove(`map__pin--active`);
-  });
-};
-
-const activatePin = function (pin) {
-  if (activePin) {
-    disablePin();
+  const activePin = document.querySelector(`.map__pin--active`);
+  if (!activePin) {
+    return;
   }
-  activePin = pin;
-  activePin.classList.add(`map__pin--active`);
+  activePin.classList.remove();
+};
+
+const activatePin = function (evt) {
+  if (mapPin !== evt.target) {
+    mapPin.classList.add(`map__pin--active`);
+  }
+  disablePin();
 };
 
 
-const renderPins = function (ad) {
+const renderPin = function (ad) {
   const pinsTemplate = mapPin.cloneNode(true);
   pinsTemplate.querySelector(`img`).src = ad.author.avatar;
   pinsTemplate.querySelector(`img`).alt = ad.offer.title;
@@ -411,6 +434,7 @@ const renderPins = function (ad) {
 };
 
 const removePins = function () {
+  disablePin();
   const allPins = pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
   allPins.forEach(function (pin) {
     pinsContainer.removeChild(pin);
@@ -420,7 +444,7 @@ const removePins = function () {
 window.pin = {
   size: PinSize,
   disable: disablePin,
-  render: renderPins,
+  render: renderPin,
   activate: activatePin,
   remove: removePins
 
@@ -438,28 +462,32 @@ window.pin = {
 /* eslint-disable object-shorthand */
 
 
-const HOUSING_TYPES = {
+const MAP_HOUSING_TYPES_TO_RU = {
   palace: `Дворец`,
   flat: `Квартира`,
   house: `Дом`,
   bungalow: `Бунгало`
 };
 
-const pinsContainer = document.querySelector(`.map__pins`);
+const pinContainer = document.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 
-
-const getFeautures = function (ad, card) {
-  const features = card.querySelector(`.popup__features`);
-  features.innerHTML = ``;
-  const fragmentFeatures = document.createDocumentFragment();
+const createFeatures = function (ad) {
+  const featuresFragment = document.createDocumentFragment();
   for (let i = 0; i < ad.offer.features.length; i++) {
     const newFeature = document.createElement(`li`);
     newFeature.classList.add(`popup__feature`);
     newFeature.classList.add(`popup__feature--` + ad.offer.features[i]);
-    fragmentFeatures.appendChild(newFeature);
+    featuresFragment.appendChild(newFeature);
   }
-  features.appendChild(fragmentFeatures);
+  return featuresFragment;
+};
+
+const getFeautures = function (ad, card) {
+  const featuresContainer = card.querySelector(`.popup__features`);
+  featuresContainer.innerHTML = ``;
+  const featuresFragment = createFeatures(ad);
+  featuresContainer.appendChild(featuresFragment);
 };
 
 const getPhotos = function (photos) {
@@ -471,15 +499,15 @@ const getPhotos = function (photos) {
 };
 
 const disableCard = function () {
-  const popup = pinsContainer.querySelector(`.map__card`);
+  const popup = pinContainer.querySelector(`.map__card`);
   window.pin.disable();
   if (popup) {
-    pinsContainer.removeChild(popup);
+    pinContainer.removeChild(popup);
   }
 };
 
-const onCardEscPress = function (evt) {
-  if (evt.code === window.util.KeyCode.ESCAPE) {
+const onCardEscPress = function () {
+  if (window.util.isEscKeyCode) {
     disableCard();
   }
   document.removeEventListener(`keydown`, onCardEscPress);
@@ -487,33 +515,23 @@ const onCardEscPress = function (evt) {
 
 const renderCard = function (ad) {
   const card = cardTemplate.cloneNode(true);
-  card.querySelector(`.popup__title`).textContent = ad.offer.title;
-  card.querySelector(`.popup__text--address`).textContent = ad.offer.address;
-  card.querySelector(`.popup__text--price`).textContent = ad.offer.price;
-  const type = card.querySelector(`.popup__type`);
-  switch (ad.offer.type) {
-    case `palace`:
-      type.textContent = HOUSING_TYPES.palace;
-      break;
-    case `flat`:
-      type.textContent = HOUSING_TYPES.flat;
-      break;
-    case `house`:
-      type.textContent = HOUSING_TYPES.house;
-      break;
-    case `bungalow`:
-      type.textContent = HOUSING_TYPES.bungalow;
-      break;
-  }
-  card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
-  card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
-  card.querySelector(`.popup__description`).textContent = ad.offer.description;
-  card.querySelector(`.popup__avatar`).src = ad.author.avatar;
-  card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos);
-  getFeautures(ad, card);
+  if (ad.offer) {
+    card.querySelector(`.popup__title`).textContent = ad.offer.title;
+    card.querySelector(`.popup__text--address`).textContent = ad.offer.address;
+    card.querySelector(`.popup__text--price`).textContent = ad.offer.price;
+    const type = card.querySelector(`.popup__type`);
+    type.textContent = MAP_HOUSING_TYPES_TO_RU[ad.offer.type];
+    card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
+    card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
+    card.querySelector(`.popup__description`).textContent = ad.offer.description;
+    card.querySelector(`.popup__avatar`).src = ad.author.avatar;
+    card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos).join(``);
+    getFeautures(ad, card);
 
-  card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
-  document.addEventListener(`keydown`, onCardEscPress);
+    card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
+    document.addEventListener(`keydown`, onCardEscPress);
+  }
+
   return card;
 };
 
@@ -536,6 +554,7 @@ window.card = {
 /* eslint-disable object-shorthand */
 
 
+const filter = document.querySelector(`.map__filters`);
 const pinsContainer = document.querySelector(`.map__pins`);
 const houseTypeSelect = document.querySelector(`#housing-type`);
 const housePriceSelect = document.querySelector(`#housing-price`);
@@ -546,17 +565,17 @@ const MAX_PINS = 5;
 let pins = [];
 let activePin = false;
 
-const Filters = {
-  type: `any`,
-  price: `any`,
-  room: `any`,
-  guest: `any`,
-  features: []
+const FiltersValue = {
+  ANY: `any`,
+  TYPE: `type`,
+  PRICE: `price`,
+  ROOM: `rooms`,
+  GUEST: `guests`
 };
 
 const HousePrice = {
-  min: 10000,
-  max: 50000
+  MIN: 10000,
+  MAX: 50000
 };
 
 const HousePriceType = {
@@ -565,36 +584,41 @@ const HousePriceType = {
   HIGH: `high`
 };
 
-const checkFeatures = function (ad) {
-  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input:checked`);
-  return Array.from(checkedFeaturesItems).every(function (item) {
-    return ad.offer.features.includes(item.ad);
-  });
-};
-
 const checkPrice = function (ad) {
   switch (housePriceSelect.value) {
+    case FiltersValue.ANY:
+      return true;
     case HousePriceType.LOW:
-      return (ad.offer.price < HousePrice.min);
+      return (ad.offer.price < HousePrice.MIN);
     case HousePriceType.MEDIUM:
-      return ad.offer.price >= HousePrice.min && ad.offer.price <= HousePrice.max;
+      return ad.offer.price >= HousePrice.MIN && ad.offer.price <= HousePrice.MAX;
     case HousePriceType.HIGH:
-      return ad.offer.price > HousePrice.max;
+      return ad.offer.price > HousePrice.MAX;
   }
   return false;
 };
 
-const filterAd = function (ad) {
-  return ((houseTypeSelect.value === Filters.type) ? true : (ad.offer.type === houseTypeSelect.value)) &&
-    ((housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
-    ((houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === houseRoomSelect.value)) &&
-    ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === houseGuestSelect.value)) &&
-    checkFeatures(ad);
+const checkFeatures = function (ad) {
+  const checkedFeatures = houseFeaturesSelect.querySelectorAll(`input:checked`);
+  return Array.from(checkedFeatures).every(function (checkbox) {
+    return ad.offer.features.includes(checkbox.value);
+  });
 };
 
-const getFilteredPins = function (ads) {
-  let similiars = ads.filter(filterAd);
-  return similiars.slice(0, MAX_PINS);
+const filterElement = function (select, optionValue, ad) {
+  return select.value === FiltersValue.ANY ? true : select.value === ad.offer[optionValue].toString();
+};
+
+const filterAd = function (ad) {
+  return (filterElement(houseTypeSelect, FiltersValue.TYPE, ad)) &&
+    (filterElement(houseRoomSelect, FiltersValue.ROOM, ad)) &&
+    (filterElement(houseGuestSelect, FiltersValue.GUEST, ad)) &&
+    checkFeatures(ad) && checkPrice(ad);
+};
+
+const getFilteredPins = function (ad) {
+  let similiarAds = ad.filter(filterAd);
+  return similiarAds.slice(0, MAX_PINS);
 };
 
 const onPinClick = function (pin, ad) {
@@ -602,7 +626,7 @@ const onPinClick = function (pin, ad) {
     window.card.disable();
     if (activePin !== evt.currentTarget) {
       pinsContainer.appendChild(window.card.render(ad));
-      window.pin.activate(evt.currentTarget);
+      window.pin.render(ad);
     }
   });
 };
@@ -619,10 +643,10 @@ const updatePins = function (ads) {
   }
 };
 
-const onSuccessLoad = window.debounce(function (data) {
+const onSuccessLoad = function (data) {
   pins = data;
-  updatePins(pins);
-});
+  window.debounce(updatePins(pins));
+};
 
 const onErrorLoad = function (errorMessage) {
   window.util.createErrorMessage(errorMessage);
@@ -630,19 +654,12 @@ const onErrorLoad = function (errorMessage) {
 
 
 const addChangeListeners = function () {
-  houseTypeSelect.addEventListener(`change`, onFilterChange);
-  housePriceSelect.addEventListener(`change`, onFilterChange);
-  houseRoomSelect.addEventListener(`change`, onFilterChange);
-  houseGuestSelect.addEventListener(`change`, onFilterChange);
-  houseFeaturesSelect.addEventListener(`change`, onFilterChange);
+  filter.addEventListener(`change`, onFilterChange);
 };
 
 const removeChangeListeners = function () {
-  houseTypeSelect.removeEventListener(`change`, onFilterChange);
-  housePriceSelect.removeEventListener(`change`, onFilterChange);
-  houseRoomSelect.removeEventListener(`change`, onFilterChange);
-  houseGuestSelect.removeEventListener(`change`, onFilterChange);
-  houseFeaturesSelect.removeEventListener(`change`, onFilterChange);
+  filter.removeEventListener(`change`, onFilterChange);
+
 };
 
 const onFilterChange = function () {
@@ -685,27 +702,26 @@ const houseFeaturesSelect = document.querySelector(`#housing-features`);
 const checkedFeaturesFilters = houseFeaturesSelect.querySelectorAll(`input[type=checkbox]`);
 const checkedFeaturesItems = adForm.querySelectorAll(`.feature__checkbox`);
 
-const resetCheckbox = function (items) {
-  items.forEach(function (item) {
-    if (item.checked) {
-      item.checked = false;
+const resetCheckbox = function (checkboxes) {
+  checkboxes.forEach(function (checkbox) {
+    if (checkbox.checked) {
+      checkbox.checked = false;
     }
-    return item;
   });
 };
 
 const resetForm = function () {
-  adForm.querySelectorAll(`input`).forEach(function (item) {
-    item.value = ``;
-    return item;
+  adForm.querySelectorAll(`input`).forEach(function (input) {
+    input.value = ``;
+    return input;
   });
   resetCheckbox(checkedFeaturesItems);
 };
 
 const resetFilters = function () {
-  mapFiltersForm.querySelectorAll(`select`).forEach(function (item) {
-    item.value = `any`;
-    return item;
+  mapFiltersForm.querySelectorAll(`select`).forEach(function (option) {
+    option.value = `any`;
+    return option;
   });
   resetCheckbox(checkedFeaturesFilters);
 };
@@ -734,7 +750,7 @@ const onErrorEscPress = function (evt) {
   window.util.isEscKeyCode(evt, closeErrorMessage);
 };
 
-const errorMessage = function () {
+const showErrorMessage = function () {
   const message = error.cloneNode(true);
   message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
   main.appendChild(message);
@@ -750,7 +766,7 @@ const closeSuccessMessage = function () {
   document.removeEventListener(`click`, closeSuccessMessage);
 };
 
-const successMessage = function () {
+const showSuccessMessage = function () {
   const message = success.cloneNode(true);
   message.querySelector(`.success`).addEventListener(`click`, closeSuccessMessage);
   main.appendChild(message);
@@ -775,8 +791,8 @@ window.form = {
   disable: disableForm,
   reset: resetForm,
   resetFilters: resetFilters,
-  success: successMessage,
-  error: errorMessage
+  success: showSuccessMessage,
+  error: showErrorMessage
 };
 
 
@@ -796,7 +812,14 @@ const map = document.querySelector(`.map`);
 const mapFiltersForm = document.querySelector(`.map__filters`);
 const adForm = document.querySelector(`.ad-form`);
 const resetButton = adForm.querySelector(`.ad-form__reset`);
+const MOUSE_LEFT_CLICK = 1;
+const MAIN_PIN_DEFAULT_X = `570px`;
+const MAIN_PIN_DEFAULT_Y = `375px`;
 
+
+const onResetButtonClick = function () {
+  disableMap();
+};
 
 const activateMap = function () {
   map.classList.remove(`map--faded`);
@@ -813,32 +836,39 @@ const disableMap = function () {
   window.pin.remove();
   window.form.reset();
   window.form.resetFilters();
-  window.move.setAddress(mainPin);
+  window.move.address(window.move.getCoords);
+  mainPin.style.left = MAIN_PIN_DEFAULT_X;
+  mainPin.style.top = MAIN_PIN_DEFAULT_Y;
   window.filter.remove();
+  window.photo.reset();
   removeListeners();
+  mainPin.addEventListener(`mousedown`, onMouseDown);
+  mainPin.addEventListener(`keydown`, onKeyDown);
 };
 
 
 const onSubmitForm = function (evt) {
-  window.backend.upload(window.form.success, window.form.error, new FormData(adForm));
   evt.preventDefault();
+  window.backend.upload(window.form.success, window.form.error, new FormData(adForm));
   disableMap();
 };
 
 const addListeners = function () {
   window.validation.change();
   adForm.addEventListener(`submit`, onSubmitForm);
+  resetButton.addEventListener(`click`, onResetButtonClick);
+
 };
 
 const removeListeners = function () {
   window.validation.remove();
   adForm.removeEventListener(`submit`, onSubmitForm);
-  resetButton.removeEventListener(`click`, disableMap);
+  resetButton.removeEventListener(`click`, onResetButtonClick);
 };
 
 
 const onMouseDown = function (evt) {
-  if (evt.which === window.util.KeyCode.MOUSE_LEFT_CLICK) {
+  if (evt.which === MOUSE_LEFT_CLICK) {
     activateMap();
   }
   mainPin.removeEventListener(`mousedown`, onMouseDown);
@@ -852,9 +882,7 @@ const onKeyDown = function (evt) {
 };
 
 disableMap();
-resetButton.addEventListener(`click`, disableMap);
-mainPin.addEventListener(`mousedown`, onMouseDown);
-mainPin.addEventListener(`keydown`, onKeyDown);
+
 
 })();
 

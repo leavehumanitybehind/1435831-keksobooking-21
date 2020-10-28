@@ -4,8 +4,8 @@
 const KeyCode = {
   ENTER: `Enter`,
   ESCAPE: `Escape`,
-  MOUSE_LEFT_CLICK: 1
 };
+
 
 const isEscKeyCode = function (evt) {
   return evt.KeyCode === KeyCode.ESCAPE;
@@ -31,6 +31,6 @@ const createErrorMessage = function (message) {
 window.util = {
   isEscKeyCode: isEscKeyCode,
   createErrorMessage: createErrorMessage,
-  KeyCode: KeyCode
+  KeyCode: KeyCode,
 };
 

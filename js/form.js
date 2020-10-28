@@ -14,27 +14,26 @@ const houseFeaturesSelect = document.querySelector(`#housing-features`);
 const checkedFeaturesFilters = houseFeaturesSelect.querySelectorAll(`input[type=checkbox]`);
 const checkedFeaturesItems = adForm.querySelectorAll(`.feature__checkbox`);
 
-const resetCheckbox = function (items) {
-  items.forEach(function (item) {
-    if (item.checked) {
-      item.checked = false;
+const resetCheckbox = function (checkboxes) {
+  checkboxes.forEach(function (checkbox) {
+    if (checkbox.checked) {
+      checkbox.checked = false;
     }
-    return item;
   });
 };
 
 const resetForm = function () {
-  adForm.querySelectorAll(`input`).forEach(function (item) {
-    item.value = ``;
-    return item;
+  adForm.querySelectorAll(`input`).forEach(function (input) {
+    input.value = ``;
+    return input;
   });
   resetCheckbox(checkedFeaturesItems);
 };
 
 const resetFilters = function () {
-  mapFiltersForm.querySelectorAll(`select`).forEach(function (item) {
-    item.value = `any`;
-    return item;
+  mapFiltersForm.querySelectorAll(`select`).forEach(function (option) {
+    option.value = `any`;
+    return option;
   });
   resetCheckbox(checkedFeaturesFilters);
 };
@@ -63,7 +62,7 @@ const onErrorEscPress = function (evt) {
   window.util.isEscKeyCode(evt, closeErrorMessage);
 };
 
-const errorMessage = function () {
+const showErrorMessage = function () {
   const message = error.cloneNode(true);
   message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
   main.appendChild(message);
@@ -79,7 +78,7 @@ const closeSuccessMessage = function () {
   document.removeEventListener(`click`, closeSuccessMessage);
 };
 
-const successMessage = function () {
+const showSuccessMessage = function () {
   const message = success.cloneNode(true);
   message.querySelector(`.success`).addEventListener(`click`, closeSuccessMessage);
   main.appendChild(message);
@@ -104,8 +103,8 @@ window.form = {
   disable: disableForm,
   reset: resetForm,
   resetFilters: resetFilters,
-  success: successMessage,
-  error: errorMessage
+  success: showSuccessMessage,
+  error: showErrorMessage
 };
 
 

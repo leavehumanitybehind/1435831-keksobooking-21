@@ -10,25 +10,23 @@ const PinSize = {
   HEIGHT: 70
 };
 
-let activePin = false;
-
 const disablePin = function () {
-  const allPins = document.querySelectorAll(`.map__pin`);
-  allPins.forEach(function (pin) {
-    pin.classList.remove(`map__pin--active`);
-  });
-};
-
-const activatePin = function (pin) {
-  if (activePin) {
-    disablePin();
+  const activePin = document.querySelector(`.map__pin--active`);
+  if (!activePin) {
+    return;
   }
-  activePin = pin;
-  activePin.classList.add(`map__pin--active`);
+  activePin.classList.remove();
+};
+
+const activatePin = function (evt) {
+  if (mapPin !== evt.target) {
+    mapPin.classList.add(`map__pin--active`);
+  }
+  disablePin();
 };
 
 
-const renderPins = function (ad) {
+const renderPin = function (ad) {
   const pinsTemplate = mapPin.cloneNode(true);
   pinsTemplate.querySelector(`img`).src = ad.author.avatar;
   pinsTemplate.querySelector(`img`).alt = ad.offer.title;
@@ -39,6 +37,7 @@ const renderPins = function (ad) {
 };
 
 const removePins = function () {
+  disablePin();
   const allPins = pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
   allPins.forEach(function (pin) {
     pinsContainer.removeChild(pin);
@@ -48,7 +47,7 @@ const removePins = function () {
 window.pin = {
   size: PinSize,
   disable: disablePin,
-  render: renderPins,
+  render: renderPin,
   activate: activatePin,
   remove: removePins
 

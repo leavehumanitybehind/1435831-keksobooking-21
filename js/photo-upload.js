@@ -19,10 +19,21 @@ const showPicture = function (fileChooser, preview) {
       const reader = new FileReader();
       reader.addEventListener(`load`, function () {
         preview.src = reader.result;
+        preview.setAttribute(`width`, `100%`);
+        preview.setAttribute(`height`, `100%`);
       });
       reader.readAsDataURL(file);
     }
   });
+};
+
+const resetPreview = function (preview) {
+  preview.src = `img/muffin-grey.svg`;
+};
+
+const resetPhotos = function () {
+  resetPreview(avatarPreview);
+  resetPreview(housePreview);
 };
 
 const onPhotoChange = function () {
@@ -34,4 +45,8 @@ const onPhotoChange = function () {
 
 avatarFileChooser.addEventListener(`change`, onPhotoChange);
 houseFileChooser.addEventListener(`change`, onPhotoChange);
+
+window.photo = {
+  reset: resetPhotos
+};
 

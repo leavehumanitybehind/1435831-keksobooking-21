@@ -1,6 +1,7 @@
 /* eslint-disable object-shorthand */
 'use strict';
 
+const filter = document.querySelector(`.map__filters`);
 const pinsContainer = document.querySelector(`.map__pins`);
 const houseTypeSelect = document.querySelector(`#housing-type`);
 const housePriceSelect = document.querySelector(`#housing-price`);
@@ -11,17 +12,17 @@ const MAX_PINS = 5;
 let pins = [];
 let activePin = false;
 
-const Filters = {
-  type: `any`,
-  price: `any`,
-  room: `any`,
-  guest: `any`,
-  features: []
+const FiltersValue = {
+  ANY: `any`,
+  TYPE: `type`,
+  PRICE: `price`,
+  ROOM: `rooms`,
+  GUEST: `guests`
 };
 
 const HousePrice = {
-  min: 10000,
-  max: 50000
+  MIN: 10000,
+  MAX: 50000
 };
 
 const HousePriceType = {
@@ -30,36 +31,41 @@ const HousePriceType = {
   HIGH: `high`
 };
 
-const checkFeatures = function (ad) {
-  const checkedFeaturesItems = houseFeaturesSelect.querySelectorAll(`input:checked`);
-  return Array.from(checkedFeaturesItems).every(function (item) {
-    return ad.offer.features.includes(item.ad);
-  });
-};
-
 const checkPrice = function (ad) {
   switch (housePriceSelect.value) {
+    case FiltersValue.ANY:
+      return true;
     case HousePriceType.LOW:
-      return (ad.offer.price < HousePrice.min);
+      return (ad.offer.price < HousePrice.MIN);
     case HousePriceType.MEDIUM:
-      return ad.offer.price >= HousePrice.min && ad.offer.price <= HousePrice.max;
+      return ad.offer.price >= HousePrice.MIN && ad.offer.price <= HousePrice.MAX;
     case HousePriceType.HIGH:
-      return ad.offer.price > HousePrice.max;
+      return ad.offer.price > HousePrice.MAX;
   }
   return false;
 };
 
-const filterAd = function (ad) {
-  return ((houseTypeSelect.value === Filters.type) ? true : (ad.offer.type === houseTypeSelect.value)) &&
-    ((housePriceSelect.value === Filters.price) ? true : checkPrice(ad)) &&
-    ((houseRoomSelect.value === Filters.room) ? true : (ad.offer.rooms === houseRoomSelect.value)) &&
-    ((houseGuestSelect.value === Filters.guest) ? true : (ad.offer.guests === houseGuestSelect.value)) &&
-    checkFeatures(ad);
+const checkFeatures = function (ad) {
+  const checkedFeatures = houseFeaturesSelect.querySelectorAll(`input:checked`);
+  return Array.from(checkedFeatures).every(function (checkbox) {
+    return ad.offer.features.includes(checkbox.value);
+  });
 };
 
-const getFilteredPins = function (ads) {
-  let similiars = ads.filter(filterAd);
-  return similiars.slice(0, MAX_PINS);
+const filterElement = function (select, optionValue, ad) {
+  return select.value === FiltersValue.ANY ? true : select.value === ad.offer[optionValue].toString();
+};
+
+const filterAd = function (ad) {
+  return (filterElement(houseTypeSelect, FiltersValue.TYPE, ad)) &&
+    (filterElement(houseRoomSelect, FiltersValue.ROOM, ad)) &&
+    (filterElement(houseGuestSelect, FiltersValue.GUEST, ad)) &&
+    checkFeatures(ad) && checkPrice(ad);
+};
+
+const getFilteredPins = function (ad) {
+  let similiarAds = ad.filter(filterAd);
+  return similiarAds.slice(0, MAX_PINS);
 };
 
 const onPinClick = function (pin, ad) {
@@ -67,7 +73,7 @@ const onPinClick = function (pin, ad) {
     window.card.disable();
     if (activePin !== evt.currentTarget) {
       pinsContainer.appendChild(window.card.render(ad));
-      window.pin.activate(evt.currentTarget);
+      window.pin.render(ad);
     }
   });
 };
@@ -84,10 +90,10 @@ const updatePins = function (ads) {
   }
 };
 
-const onSuccessLoad = window.debounce(function (data) {
+const onSuccessLoad = function (data) {
   pins = data;
-  updatePins(pins);
-});
+  window.debounce(updatePins(pins));
+};
 
 const onErrorLoad = function (errorMessage) {
   window.util.createErrorMessage(errorMessage);
@@ -95,19 +101,12 @@ const onErrorLoad = function (errorMessage) {
 
 
 const addChangeListeners = function () {
-  houseTypeSelect.addEventListener(`change`, onFilterChange);
-  housePriceSelect.addEventListener(`change`, onFilterChange);
-  houseRoomSelect.addEventListener(`change`, onFilterChange);
-  houseGuestSelect.addEventListener(`change`, onFilterChange);
-  houseFeaturesSelect.addEventListener(`change`, onFilterChange);
+  filter.addEventListener(`change`, onFilterChange);
 };
 
 const removeChangeListeners = function () {
-  houseTypeSelect.removeEventListener(`change`, onFilterChange);
-  housePriceSelect.removeEventListener(`change`, onFilterChange);
-  houseRoomSelect.removeEventListener(`change`, onFilterChange);
-  houseGuestSelect.removeEventListener(`change`, onFilterChange);
-  houseFeaturesSelect.removeEventListener(`change`, onFilterChange);
+  filter.removeEventListener(`change`, onFilterChange);
+
 };
 
 const onFilterChange = function () {

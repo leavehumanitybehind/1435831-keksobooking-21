@@ -33,13 +33,16 @@ const onHousingTypeChange = function () {
 };
 
 const setPriceLimit = function () {
-  return (priceInput.value > MAX_PRICE) ? priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE) :
-    priceInput.setCustomValidity(``);
+  if (priceInput.value > MAX_PRICE) {
+    priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE);
+    return;
+  }
+  priceInput.setCustomValidity(``);
 };
 
 
-const setTimeOption = function (element, value) {
-  element.value = value;
+const setTimeOption = function (timeSelect, value) {
+  timeSelect.value = value;
 };
 
 const onTimeoutChange = function (evt) {
@@ -51,9 +54,19 @@ const onTimeinChange = function (evt) {
 };
 
 const syncRoomsGuests = function (rooms, guests) {
-  return ((guests > rooms && rooms !== 100) || (rooms !== 100 && guests === 0) || (rooms === 100 && guests > 0)) ?
-    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]) :
-    capacitySelect.setCustomValidity(``);
+  if (guests > rooms && rooms !== 100) {
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    return;
+  }
+  if (rooms !== 100 && guests === 0) {
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    return;
+  }
+  if (rooms === 100 && guests > 0) {
+    capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    return;
+  }
+  capacitySelect.setCustomValidity(``);
 };
 
 roomNumberSelect.addEventListener(`change`, function () {

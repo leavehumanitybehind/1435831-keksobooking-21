@@ -100,7 +100,7 @@
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--wide">
           <label class="ad-form__label" for="title">Заголовок объявления</label>
-          <input id="title" name="title" type="text" placeholder="Милая, уютная квартирка в центре Токио" required>
+          <input id="title" name="title" type="text" minlength="30" maxlength="100" placeholder="Милая, уютная квартирка в центре Токио" required>
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--wide">
           <label class="ad-form__label" for="address">Адрес</label>
@@ -117,7 +117,7 @@
         </fieldset>
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
-          <input id="price" name="price" type="number" placeholder="5000" required>
+          <input id="price" name="price" type="number" placeholder="1000" min='1000' max='1000000' required>
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--time">
           <label class="ad-form__label" for="timein">Время заезда и выезда</label>
@@ -177,7 +177,7 @@
               <label for="images" class="ad-form__drop-zone">Загрузить<br>фото...</label>
             </div>
             <div class="ad-form__photo">
-               <img src="img/muffin-grey.svg" alt="Фотография жилья" width="70" height="70">
+               <img src="img/muffin-grey.svg" alt="Фотография жилья" width="40" height="44">
             </div>
           </div>
         </fieldset>
@@ -225,7 +225,7 @@
       </ul>
       <p class="popup__description">Великолепная квартира-студия в центре Токио. Подходит как туристам, так и бизнесменам. Квартира полностью укомплектована и недавно отремонтирована.</p>
       <div class="popup__photos">
-        <img src="" class="popup__photo" width="45" height="40" alt="Фотография жилья">
+        <img src="" class="popup__photo" width="40" height="44" alt="Фотография жилья">
       </div>
     </article>
   </template>

@@ -13,6 +13,10 @@ const inputs = adForm.querySelectorAll(`input`);
 const houseFeaturesSelect = document.querySelector(`#housing-features`);
 const checkedFeaturesFilters = houseFeaturesSelect.querySelectorAll(`input[type=checkbox]`);
 const checkedFeaturesItems = adForm.querySelectorAll(`.feature__checkbox`);
+const resetButton = adForm.querySelector(`.ad-form__reset`);
+const submitButton = adForm.querySelector(`.ad-form__submit`);
+const textArea = adForm.querySelector(`textarea`);
+
 
 const resetCheckbox = function (checkboxes) {
   checkboxes.forEach(function (checkbox) {
@@ -27,6 +31,7 @@ const resetForm = function () {
     input.value = ``;
     return input;
   });
+  adForm.reset();
   resetCheckbox(checkedFeaturesItems);
 };
 
@@ -89,14 +94,36 @@ const enableForm = function () {
   enableControls(inputs);
   enableControls(adFormSelects);
   enableControls(mapFiltersSelects);
+  adForm.removeAttribute(`disabled`, `disabled`);
+  submitButton.removeAttribute(`disabled`, `disabled`);
+  resetButton.removeAttribute(`disabled`, `disabled`);
+  textArea.removeAttribute(`disabled`, `disabled`);
+
 };
+
 
 const disableForm = function () {
   disableFormControls(fieldsets);
   disableFormControls(inputs);
   disableFormControls(adFormSelects);
   disableFormControls(mapFiltersSelects);
+  adForm.setAttribute(`disabled`, `disabled`);
+  submitButton.setAttribute(`disabled`, `disabled`);
+  resetButton.setAttribute(`disabled`, `disabled`);
+  textArea.setAttribute(`disabled`, `disabled`);
+
 };
+
+const checkValidity = function () {
+  inputs.forEach(function (input) {
+    if (!input.checkValidity()) {
+      input.style.border = `2px dashed #ff0000`;
+    } else {
+      input.style.border = ``;
+    }
+  });
+};
+
 
 window.form = {
   enable: enableForm,
@@ -104,7 +131,8 @@ window.form = {
   reset: resetForm,
   resetFilters: resetFilters,
   success: showSuccessMessage,
-  error: showErrorMessage
+  error: showErrorMessage,
+  check: checkValidity
 };
 
 

@@ -2,7 +2,7 @@
 'use strict';
 
 const filter = document.querySelector(`.map__filters`);
-const pinsContainer = document.querySelector(`.map__pins`);
+const pinContainer = document.querySelector(`.map__pins`);
 const houseTypeSelect = document.querySelector(`#housing-type`);
 const housePriceSelect = document.querySelector(`#housing-price`);
 const houseRoomSelect = document.querySelector(`#housing-rooms`);
@@ -10,7 +10,6 @@ const houseGuestSelect = document.querySelector(`#housing-guests`);
 const houseFeaturesSelect = document.querySelector(`#housing-features`);
 const MAX_PINS = 5;
 let pins = [];
-let activePin = false;
 
 const FiltersValue = {
   ANY: `any`,
@@ -69,12 +68,17 @@ const getFilteredPins = function (ad) {
 };
 
 const onPinClick = function (pin, ad) {
-  pin.addEventListener(`click`, function (evt) {
-    window.card.disable();
-    if (activePin !== evt.currentTarget) {
-      pinsContainer.appendChild(window.card.render(ad));
-      window.pin.render(ad);
+  pin.addEventListener(`click`, function () {
+    const activePin = pinContainer.querySelector(`.map__pin--active`);
+    pin.classList.add(`map__pin--active`);
+    if (activePin) {
+      window.card.disable();
+      activePin.classList.remove(`map__pin--active`);
     }
+    pin.classList.remove(`map__pin--active`);
+    pinContainer.appendChild(window.card.render(ad));
+    window.pin.render(ad);
+
   });
 };
 
@@ -85,7 +89,7 @@ const updatePins = function (ads) {
   const numberOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
   for (let i = 0; i < numberOfPins; i++) {
     const currentPin = window.pin.render(ads[i]);
-    pinsContainer.appendChild(currentPin);
+    pinContainer.appendChild(currentPin);
     onPinClick(currentPin, ads[i]);
   }
 };
@@ -109,10 +113,10 @@ const removeChangeListeners = function () {
 
 };
 
-const onFilterChange = function () {
-  window.card.disable();
-  window.pin.disable();
+const onFilterChange = function (ad) {
   addChangeListeners();
+  window.card.disable(ad);
+
   window.backend.load(onSuccessLoad, onErrorLoad);
 };
 

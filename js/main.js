@@ -11,7 +11,10 @@ const MAIN_PIN_DEFAULT_Y = `375px`;
 
 
 const onResetButtonClick = function () {
-  disableMap();
+  resetButton.addEventListener(`click`, (evt) => {
+    evt.preventDefault();
+    disableMap();
+  });
 };
 
 const activateMap = function () {
@@ -29,12 +32,14 @@ const disableMap = function () {
   window.pin.remove();
   window.form.reset();
   window.form.resetFilters();
+  window.card.disable();
   window.move.address(window.move.getCoords);
   mainPin.style.left = MAIN_PIN_DEFAULT_X;
   mainPin.style.top = MAIN_PIN_DEFAULT_Y;
   window.filter.remove();
   window.photo.reset();
   removeListeners();
+  onResetButtonClick();
   mainPin.addEventListener(`mousedown`, onMouseDown);
   mainPin.addEventListener(`keydown`, onKeyDown);
 };
@@ -48,8 +53,9 @@ const onSubmitForm = function (evt) {
 
 const addListeners = function () {
   window.validation.change();
+  adForm.addEventListener(`change`, window.form.check);
   adForm.addEventListener(`submit`, onSubmitForm);
-  resetButton.addEventListener(`click`, onResetButtonClick);
+
 
 };
 

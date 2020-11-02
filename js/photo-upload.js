@@ -29,6 +29,8 @@ const showPicture = function (fileChooser, preview) {
 
 const resetPreview = function (preview) {
   preview.src = `img/muffin-grey.svg`;
+  preview.setAttribute(`width`, `40px`);
+  preview.setAttribute(`height`, `44px`);
 };
 
 const resetPhotos = function () {

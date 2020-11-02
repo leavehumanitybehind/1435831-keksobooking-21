@@ -10,6 +10,7 @@ const timeoutSelect = adForm.querySelector(`#timeout`);
 let roomsNumber = roomNumberSelect.value;
 let capacityNumber = capacitySelect.value;
 
+
 const VALIDITY_TEXT = {
   1: `1 комната - для 1 гостя`,
   2: ` 2 комнаты  - для 2 гостей или 1 гостя`,
@@ -25,6 +26,7 @@ let MinPrice = {
 };
 const MAX_PRICE = 1000000;
 
+
 const onHousingTypeChange = function () {
   priceInput.min = MinPrice[housingSelect.value];
   priceInput.placeholder = MinPrice[housingSelect.value];
@@ -35,9 +37,11 @@ const onHousingTypeChange = function () {
 const setPriceLimit = function () {
   if (priceInput.value > MAX_PRICE) {
     priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE);
+    priceInput.classList.add(`invalid`);
     return;
   }
   priceInput.setCustomValidity(``);
+  priceInput.classList.remove(`invalid`);
 };
 
 

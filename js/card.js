@@ -39,7 +39,6 @@ const getPhotos = function (photos) {
 
 const disableCard = function () {
   const popup = pinContainer.querySelector(`.map__card`);
-  window.pin.disable();
   if (popup) {
     pinContainer.removeChild(popup);
   }

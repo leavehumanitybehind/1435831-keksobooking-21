@@ -42,6 +42,8 @@ const disableMap = function () {
   onResetButtonClick();
   mainPin.addEventListener(`mousedown`, onMouseDown);
   mainPin.addEventListener(`keydown`, onKeyDown);
+  mapFiltersForm.classList.add(`map__filters--disabled`);
+  adForm.classList.add(`ad-form--disabled`);
 };
 
 

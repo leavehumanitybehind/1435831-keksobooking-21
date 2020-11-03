@@ -3,17 +3,20 @@
 const mainPin = document.querySelector(`.map__pin--main`);
 const map = document.querySelector(`.map`);
 const address = document.querySelector(`#address`);
-const MainPin = {
-  WIDTH: 65,
-  HEIGHT: 65,
+const MainPinLocation = {
   MIN_Y: 130,
   MAX_Y: 630,
   MIN_X: 0
 };
 
+const MainPinSize = {
+  WIDTH: 65,
+  HEIGHT: 65
+};
+
 const getMainPinCoords = function () {
-  let x = mainPin.offsetLeft + Math.floor(MainPin.WIDTH / 2);
-  let y = mainPin.offsetTop + MainPin.HEIGHT;
+  const x = mainPin.offsetLeft + Math.floor(MainPinSize.WIDTH / 2);
+  const y = mainPin.offsetTop + MainPinSize.HEIGHT;
 
   return {
     x,
@@ -48,11 +51,11 @@ mainPin.addEventListener(`mousedown`, function (evt) {
     };
 
     const mainPinCoords = getMainPinCoords();
-    if (mainPinCoords.y - shift.y >= MainPin.MIN_Y && mainPinCoords.y - shift.y <= MainPin.MAX_Y) {
+    if (mainPinCoords.y - shift.y >= MainPinLocation.MIN_Y && mainPinCoords.y - shift.y <= MainPinLocation.MAX_Y) {
       mainPin.style.top = mainPin.offsetTop - shift.y + `px`;
     }
 
-    if (mainPinCoords.x - shift.x >= MainPin.MIN_X && mainPinCoords.x - shift.x <= map.offsetWidth) {
+    if (mainPinCoords.x - shift.x >= MainPinLocation.MIN_X && mainPinCoords.x - shift.x <= map.offsetWidth) {
       mainPin.style.left = mainPin.offsetLeft - shift.x + `px`;
     }
     setAddress(mainPinCoords);

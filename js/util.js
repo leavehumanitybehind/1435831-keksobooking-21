@@ -1,4 +1,4 @@
-/* eslint-disable object-shorthand */
+
 "use strict";
 
 const KeyCode = {
@@ -6,9 +6,12 @@ const KeyCode = {
   ESCAPE: `Escape`,
 };
 
+const isEnterKeyPress = function (key) {
+  return key === KeyCode.ENTER;
+};
 
-const isEscKeyCode = function (evt) {
-  return evt.KeyCode === KeyCode.ESCAPE;
+const isEscKeyPress = function (key) {
+  return key === KeyCode.ESCAPE;
 };
 
 const createErrorMessage = function (message) {
@@ -29,8 +32,8 @@ const createErrorMessage = function (message) {
 };
 
 window.util = {
-  isEscKeyCode: isEscKeyCode,
-  createErrorMessage: createErrorMessage,
-  KeyCode: KeyCode,
+  isEnterKeyPress,
+  isEscKeyPress,
+  createErrorMessage
 };
 

@@ -27,10 +27,6 @@ const resetCheckbox = function (checkboxes) {
 };
 
 const resetForm = function () {
-  adForm.querySelectorAll(`input`).forEach(function (input) {
-    input.value = ``;
-    return input;
-  });
   adForm.reset();
   resetCheckbox(checkedFeaturesItems);
 };

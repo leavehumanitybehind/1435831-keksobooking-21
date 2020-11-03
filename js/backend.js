@@ -1,9 +1,8 @@
-/* eslint-disable object-shorthand */
 "use strict";
 
-const URL_ADDRESS = {
-  load: `https://21.javascript.pages.academy/keksobooking/data`,
-  upload: `https://21.javascript.pages.academy/keksobooking/`
+const UrlAddress = {
+  LOAD: `https://21.javascript.pages.academy/keksobooking/data`,
+  UPLOAD: `https://21.javascript.pages.academy/keksobooking/`
 };
 
 const CODE_STATUS_OK = 200;
@@ -34,18 +33,18 @@ const getXhr = function (onSuccess, onError) {
 
 const upload = function (onSuccess, onError, data) {
   const xhr = getXhr(onSuccess, onError);
-  xhr.open(`POST`, URL_ADDRESS.upload);
+  xhr.open(`POST`, UrlAddress.UPLOAD);
   xhr.send(data);
 };
 
 const load = function (onSuccess, onError) {
   const xhr = getXhr(onSuccess, onError);
-  xhr.open(`GET`, URL_ADDRESS.load);
+  xhr.open(`GET`, UrlAddress.LOAD);
   xhr.send();
 };
 
 window.backend = {
-  load: load,
-  upload: upload
+  load,
+  upload
 };
 

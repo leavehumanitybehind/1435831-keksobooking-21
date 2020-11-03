@@ -6,7 +6,7 @@
   \********************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
-/* eslint-disable object-shorthand */
+
 
 
 const KeyCode = {
@@ -14,9 +14,12 @@ const KeyCode = {
   ESCAPE: `Escape`,
 };
 
+const isEnterKeyPress = function (key) {
+  return key === KeyCode.ENTER;
+};
 
-const isEscKeyCode = function (evt) {
-  return evt.KeyCode === KeyCode.ESCAPE;
+const isEscKeyPress = function (key) {
+  return key === KeyCode.ESCAPE;
 };
 
 const createErrorMessage = function (message) {
@@ -37,9 +40,9 @@ const createErrorMessage = function (message) {
 };
 
 window.util = {
-  isEscKeyCode: isEscKeyCode,
-  createErrorMessage: createErrorMessage,
-  KeyCode: KeyCode,
+  isEnterKeyPress,
+  isEscKeyPress,
+  createErrorMessage
 };
 
 
@@ -51,12 +54,11 @@ window.util = {
   \***********************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
-/* eslint-disable object-shorthand */
 
 
-const URL_ADDRESS = {
-  load: `https://21.javascript.pages.academy/keksobooking/data`,
-  upload: `https://21.javascript.pages.academy/keksobooking/`
+const UrlAddress = {
+  LOAD: `https://21.javascript.pages.academy/keksobooking/data`,
+  UPLOAD: `https://21.javascript.pages.academy/keksobooking/`
 };
 
 const CODE_STATUS_OK = 200;
@@ -87,19 +89,19 @@ const getXhr = function (onSuccess, onError) {
 
 const upload = function (onSuccess, onError, data) {
   const xhr = getXhr(onSuccess, onError);
-  xhr.open(`POST`, URL_ADDRESS.upload);
+  xhr.open(`POST`, UrlAddress.UPLOAD);
   xhr.send(data);
 };
 
 const load = function (onSuccess, onError) {
   const xhr = getXhr(onSuccess, onError);
-  xhr.open(`GET`, URL_ADDRESS.load);
+  xhr.open(`GET`, UrlAddress.LOAD);
   xhr.send();
 };
 
 window.backend = {
-  load: load,
-  upload: upload
+  load,
+  upload
 };
 
 
@@ -124,8 +126,8 @@ const showPicture = function (fileChooser, preview) {
     const file = fileChooser.files[0];
     const fileName = file.name.toLowerCase();
 
-    const matches = FILE_TYPES.some(function (it) {
-      return fileName.endsWith(it);
+    const matches = FILE_TYPES.some(function (fileType) {
+      return fileName.endsWith(fileType);
     });
 
     if (matches) {
@@ -206,17 +208,20 @@ window.debounce = function (cb) {
 const mainPin = document.querySelector(`.map__pin--main`);
 const map = document.querySelector(`.map`);
 const address = document.querySelector(`#address`);
-const MainPin = {
-  WIDTH: 65,
-  HEIGHT: 65,
+const MainPinLocation = {
   MIN_Y: 130,
   MAX_Y: 630,
   MIN_X: 0
 };
 
+const MainPinSize = {
+  WIDTH: 65,
+  HEIGHT: 65
+};
+
 const getMainPinCoords = function () {
-  let x = mainPin.offsetLeft + Math.floor(MainPin.WIDTH / 2);
-  let y = mainPin.offsetTop + MainPin.HEIGHT;
+  const x = mainPin.offsetLeft + Math.floor(MainPinSize.WIDTH / 2);
+  const y = mainPin.offsetTop + MainPinSize.HEIGHT;
 
   return {
     x,
@@ -251,11 +256,11 @@ mainPin.addEventListener(`mousedown`, function (evt) {
     };
 
     const mainPinCoords = getMainPinCoords();
-    if (mainPinCoords.y - shift.y >= MainPin.MIN_Y && mainPinCoords.y - shift.y <= MainPin.MAX_Y) {
+    if (mainPinCoords.y - shift.y >= MainPinLocation.MIN_Y && mainPinCoords.y - shift.y <= MainPinLocation.MAX_Y) {
       mainPin.style.top = mainPin.offsetTop - shift.y + `px`;
     }
 
-    if (mainPinCoords.x - shift.x >= MainPin.MIN_X && mainPinCoords.x - shift.x <= map.offsetWidth) {
+    if (mainPinCoords.x - shift.x >= MainPinLocation.MIN_X && mainPinCoords.x - shift.x <= map.offsetWidth) {
       mainPin.style.left = mainPin.offsetLeft - shift.x + `px`;
     }
     setAddress(mainPinCoords);
@@ -307,23 +312,23 @@ const VALIDITY_TEXT = {
   100: `100 комнат не для гостей `,
 };
 
-let MinPrice = {
-  'bungalow': 0,
-  'flat': 1000,
-  'house': 5000,
-  'palace': 10000
+const MIN_PRICE = {
+  bungalow: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
 };
 const MAX_PRICE = 1000000;
 
 
 const onHousingTypeChange = function () {
-  priceInput.min = MinPrice[housingSelect.value];
-  priceInput.placeholder = MinPrice[housingSelect.value];
-  let minPrice = MinPrice[adForm.type.value];
+  priceInput.min = MIN_PRICE[housingSelect.value];
+  priceInput.placeholder = MIN_PRICE[housingSelect.value];
+  let minPrice = MIN_PRICE[adForm.type.value];
   adForm.price.setAttribute(`min`, minPrice);
 };
 
-const setPriceLimit = function () {
+const onPriceInputChange = function () {
   if (priceInput.value > MAX_PRICE) {
     priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE);
     priceInput.classList.add(`invalid`);
@@ -373,24 +378,24 @@ capacitySelect.addEventListener(`change`, function () {
   syncRoomsGuests(roomsNumber, capacityNumber);
 });
 
-const onChangeSelect = function () {
+const addChangeListeners = function () {
   housingSelect.addEventListener(`change`, onHousingTypeChange);
-  priceInput.addEventListener(`change`, setPriceLimit);
+  priceInput.addEventListener(`change`, onPriceInputChange);
   timeinSelect.addEventListener(`change`, onTimeoutChange);
   timeoutSelect.addEventListener(`change`, onTimeinChange);
 };
 
-const onRemoveSelect = function () {
+const removeChangeListeners = function () {
   housingSelect.removeEventListener(`change`, onHousingTypeChange);
-  priceInput.removeEventListener(`change`, setPriceLimit);
+  priceInput.removeEventListener(`change`, onPriceInputChange);
   timeinSelect.removeEventListener(`change`, onTimeoutChange);
   timeoutSelect.removeEventListener(`change`, onTimeinChange);
 };
 
 
 window.validation = {
-  change: onChangeSelect,
-  remove: onRemoveSelect
+  change: addChangeListeners,
+  remove: removeChangeListeners
 };
 
 })();
@@ -430,11 +435,22 @@ const removePins = function () {
   });
 };
 
-window.pin = {
-  size: PinSize,
-  render: renderPin,
-  remove: removePins
+const disablePin = function (pin) {
+  const activePin = pinsContainer.querySelector(`.map__pin--active`);
+  pin.classList.add(`map__pin--active`);
+  if (activePin) {
+    window.card.disable();
+    activePin.classList.remove(`map__pin--active`);
+  }
+  pin.classList.remove(`map__pin--active`);
+};
 
+
+window.pin = {
+  Size: PinSize,
+  render: renderPin,
+  remove: removePins,
+  disable: disablePin
 };
 
 
@@ -446,7 +462,6 @@ window.pin = {
   \********************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
-/* eslint-disable object-shorthand */
 
 
 const MAP_HOUSING_TYPES_TO_RU = {
@@ -456,7 +471,7 @@ const MAP_HOUSING_TYPES_TO_RU = {
   bungalow: `Бунгало`
 };
 
-const pinContainer = document.querySelector(`.map__pins`);
+const pinsContainer = document.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 
 const createFeatures = function (ad) {
@@ -470,30 +485,39 @@ const createFeatures = function (ad) {
   return featuresFragment;
 };
 
-const getFeautures = function (ad, card) {
+const getFeauturesNodes = function (ad, card) {
   const featuresContainer = card.querySelector(`.popup__features`);
   featuresContainer.innerHTML = ``;
   const featuresFragment = createFeatures(ad);
   featuresContainer.appendChild(featuresFragment);
 };
 
-const getPhotos = function (photos) {
-  const imgs = [];
-  for (let i = 0; i < photos.length; i++) {
-    imgs.push(`<img src="` + photos[i] + `"class="popup__photo" width="45" height = "40" alt = "Photo">`);
-  }
-  return imgs;
+const createPhotoMarkup = function (src) {
+  const photo = document.createElement(`img`);
+  photo.classList.add(`popup__photo`);
+  photo.src = src;
+  photo.alt = `Photo`;
+  photo.width = `45`;
+  photo.height = `40`;
+  return photo;
+};
+
+const getPhotosNodes = function (photos, card) {
+  const photoContainer = card.querySelector(`.popup__photos`);
+  photos.forEach(function (photo) {
+    photoContainer.appendChild(createPhotoMarkup(photo));
+  });
 };
 
 const disableCard = function () {
-  const popup = pinContainer.querySelector(`.map__card`);
-  if (popup) {
-    pinContainer.removeChild(popup);
+  const card = pinsContainer.querySelector(`.map__card`);
+  if (card) {
+    pinsContainer.removeChild(card);
   }
 };
 
-const onCardEscPress = function () {
-  if (window.util.isEscKeyCode) {
+const onCardEscPress = function (evt) {
+  if (window.util.isEscKeyCode(evt.key)) {
     disableCard();
   }
   document.removeEventListener(`keydown`, onCardEscPress);
@@ -501,24 +525,62 @@ const onCardEscPress = function () {
 
 const renderCard = function (ad) {
   const card = cardTemplate.cloneNode(true);
-  if (ad.offer) {
-    card.querySelector(`.popup__title`).textContent = ad.offer.title;
-    card.querySelector(`.popup__text--address`).textContent = ad.offer.address;
-    card.querySelector(`.popup__text--price`).textContent = ad.offer.price;
-    const type = card.querySelector(`.popup__type`);
-    type.textContent = MAP_HOUSING_TYPES_TO_RU[ad.offer.type];
-    card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
-    card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
-    card.querySelector(`.popup__description`).textContent = ad.offer.description;
-    card.querySelector(`.popup__avatar`).src = ad.author.avatar;
-    card.querySelector(`.popup__photos`).innerHTML = getPhotos(ad.offer.photos).join(``);
-    getFeautures(ad, card);
 
-    card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
-    document.addEventListener(`keydown`, onCardEscPress);
+  if (ad.offer.title) {
+    card.querySelector(`.popup__title`).textContent = ad.offer.title;
+
   }
 
+  if (ad.offer.address) {
+    card.querySelector(`.popup__text--address`).textContent = ad.offer.address;
+
+  }
+
+  if (ad.offer.price) {
+    card.querySelector(`.popup__text--price`).textContent = ad.offer.price + ` ₽/ночь`;
+
+  }
+
+  if (ad.offer.type) {
+    const type = card.querySelector(`.popup__type`);
+    type.textContent = MAP_HOUSING_TYPES_TO_RU[ad.offer.type];
+
+  }
+
+  if (ad.offer.rooms && ad.offer.guests) {
+    card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
+
+  }
+
+  if (ad.offer.checkin && ad.offer.checkout) {
+    card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
+
+  }
+
+  if (ad.offer.description) {
+    card.querySelector(`.popup__description`).textContent = ad.offer.description;
+
+  }
+
+  if (ad.author.avatar) {
+    card.querySelector(`.popup__avatar`).src = ad.author.avatar;
+
+  }
+
+  if (ad.offer.photos) {
+    getPhotosNodes(ad.offer.photos, card);
+
+  }
+
+  if (ad.offer.features) {
+    getFeauturesNodes(ad, card);
+
+  }
+
+  card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
+  document.addEventListener(`keydown`, onCardEscPress);
   return card;
+
 };
 
 
@@ -635,7 +697,7 @@ const updatePins = function (ads) {
 
 const onSuccessLoad = function (data) {
   pins = data;
-  window.debounce(updatePins);
+  window.debounce(updatePins(pins));
 };
 
 const onErrorLoad = function (errorMessage) {
@@ -705,10 +767,6 @@ const resetCheckbox = function (checkboxes) {
 };
 
 const resetForm = function () {
-  adForm.querySelectorAll(`input`).forEach(function (input) {
-    input.value = ``;
-    return input;
-  });
   adForm.reset();
   resetCheckbox(checkedFeaturesItems);
 };
@@ -867,6 +925,8 @@ const disableMap = function () {
   onResetButtonClick();
   mainPin.addEventListener(`mousedown`, onMouseDown);
   mainPin.addEventListener(`keydown`, onKeyDown);
+  mapFiltersForm.classList.add(`map__filters--disabled`);
+  adForm.classList.add(`ad-form--disabled`);
 };
 
 

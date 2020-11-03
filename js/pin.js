@@ -27,10 +27,21 @@ const removePins = function () {
   });
 };
 
-window.pin = {
-  size: PinSize,
-  render: renderPin,
-  remove: removePins
+const disablePin = function (pin) {
+  const activePin = pinsContainer.querySelector(`.map__pin--active`);
+  pin.classList.add(`map__pin--active`);
+  if (activePin) {
+    window.card.disable();
+    activePin.classList.remove(`map__pin--active`);
+  }
+  pin.classList.remove(`map__pin--active`);
+};
 
+
+window.pin = {
+  Size: PinSize,
+  render: renderPin,
+  remove: removePins,
+  disable: disablePin
 };
 

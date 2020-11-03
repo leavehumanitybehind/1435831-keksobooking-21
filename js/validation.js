@@ -18,23 +18,23 @@ const VALIDITY_TEXT = {
   100: `100 комнат не для гостей `,
 };
 
-let MinPrice = {
-  'bungalow': 0,
-  'flat': 1000,
-  'house': 5000,
-  'palace': 10000
+const MIN_PRICE = {
+  bungalow: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
 };
 const MAX_PRICE = 1000000;
 
 
 const onHousingTypeChange = function () {
-  priceInput.min = MinPrice[housingSelect.value];
-  priceInput.placeholder = MinPrice[housingSelect.value];
-  let minPrice = MinPrice[adForm.type.value];
+  priceInput.min = MIN_PRICE[housingSelect.value];
+  priceInput.placeholder = MIN_PRICE[housingSelect.value];
+  let minPrice = MIN_PRICE[adForm.type.value];
   adForm.price.setAttribute(`min`, minPrice);
 };
 
-const setPriceLimit = function () {
+const onPriceInputChange = function () {
   if (priceInput.value > MAX_PRICE) {
     priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE);
     priceInput.classList.add(`invalid`);
@@ -84,22 +84,22 @@ capacitySelect.addEventListener(`change`, function () {
   syncRoomsGuests(roomsNumber, capacityNumber);
 });
 
-const onChangeSelect = function () {
+const addChangeListeners = function () {
   housingSelect.addEventListener(`change`, onHousingTypeChange);
-  priceInput.addEventListener(`change`, setPriceLimit);
+  priceInput.addEventListener(`change`, onPriceInputChange);
   timeinSelect.addEventListener(`change`, onTimeoutChange);
   timeoutSelect.addEventListener(`change`, onTimeinChange);
 };
 
-const onRemoveSelect = function () {
+const removeChangeListeners = function () {
   housingSelect.removeEventListener(`change`, onHousingTypeChange);
-  priceInput.removeEventListener(`change`, setPriceLimit);
+  priceInput.removeEventListener(`change`, onPriceInputChange);
   timeinSelect.removeEventListener(`change`, onTimeoutChange);
   timeoutSelect.removeEventListener(`change`, onTimeinChange);
 };
 
 
 window.validation = {
-  change: onChangeSelect,
-  remove: onRemoveSelect
+  change: addChangeListeners,
+  remove: removeChangeListeners
 };

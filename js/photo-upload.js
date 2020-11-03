@@ -11,8 +11,8 @@ const showPicture = function (fileChooser, preview) {
     const file = fileChooser.files[0];
     const fileName = file.name.toLowerCase();
 
-    const matches = FILE_TYPES.some(function (it) {
-      return fileName.endsWith(it);
+    const matches = FILE_TYPES.some(function (fileType) {
+      return fileName.endsWith(fileType);
     });
 
     if (matches) {

@@ -24,6 +24,7 @@ const activateMap = function () {
   addListeners();
   window.filter.change();
   window.form.enable();
+  window.backend.load(window.filter.success, window.filter.error);
 };
 
 const disableMap = function () {

@@ -2,13 +2,14 @@
 'use strict';
 
 const filter = document.querySelector(`.map__filters`);
-const pinContainer = document.querySelector(`.map__pins`);
+const pinsContainer = document.querySelector(`.map__pins`);
 const houseTypeSelect = document.querySelector(`#housing-type`);
 const housePriceSelect = document.querySelector(`#housing-price`);
 const houseRoomSelect = document.querySelector(`#housing-rooms`);
 const houseGuestSelect = document.querySelector(`#housing-guests`);
 const houseFeaturesSelect = document.querySelector(`#housing-features`);
 const MAX_PINS = 5;
+
 let pins = [];
 
 const FiltersValue = {
@@ -26,7 +27,7 @@ const HousePrice = {
 
 const HousePriceType = {
   LOW: `low`,
-  MEDIUM: `medium`,
+  MEDIUM: `middle`,
   HIGH: `high`
 };
 
@@ -67,36 +68,20 @@ const getFilteredPins = function (ad) {
   return similiarAds.slice(0, MAX_PINS);
 };
 
-const onPinClick = function (pin, ad) {
-  pin.addEventListener(`click`, function () {
-    const activePin = pinContainer.querySelector(`.map__pin--active`);
-    pin.classList.add(`map__pin--active`);
-    if (activePin) {
-      window.card.disable();
-      activePin.classList.remove(`map__pin--active`);
-    }
-    pin.classList.remove(`map__pin--active`);
-    pinContainer.appendChild(window.card.render(ad));
-    window.pin.render(ad);
-
-  });
-};
-
 const updatePins = function (ads) {
-  ads = getFilteredPins(pins);
   window.pin.remove();
-
-  const numberOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
-  for (let i = 0; i < numberOfPins; i++) {
+  ads = getFilteredPins(pins);
+  const numbersOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
+  for (let i = 0; i < numbersOfPins; i++) {
     const currentPin = window.pin.render(ads[i]);
-    pinContainer.appendChild(currentPin);
-    onPinClick(currentPin, ads[i]);
+    pinsContainer.appendChild(currentPin);
+    window.pin.activate(currentPin, ads[i]);
   }
 };
 
 const onSuccessLoad = function (data) {
   pins = data;
-  window.debounce(updatePins(pins));
+  updatePins(pins);
 };
 
 const onErrorLoad = function (errorMessage) {
@@ -113,12 +98,13 @@ const removeChangeListeners = function () {
 
 };
 
-const onFilterChange = function (ad) {
+const onFilterChange = function () {
   addChangeListeners();
-  window.card.disable(ad);
+  window.card.disable();
+  window.debounce(updatePins(pins));
 
-  window.backend.load(onSuccessLoad, onErrorLoad);
 };
+
 
 window.filter = {
   remove: removeChangeListeners,

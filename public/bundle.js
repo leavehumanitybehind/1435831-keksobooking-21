@@ -401,62 +401,6 @@ window.validation = {
 })();
 
 (() => {
-/*!*******************!*\
-  !*** ./js/pin.js ***!
-  \*******************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements:  */
-/* eslint-disable object-shorthand */
-
-
-const pinTemplate = document.querySelector(`#pin`).content;
-const mapPin = pinTemplate.querySelector(`.map__pin`);
-const pinsContainer = document.querySelector(`.map__pins`);
-
-const PinSize = {
-  WIDTH: 50,
-  HEIGHT: 70
-};
-
-const renderPin = function (ad) {
-  const pinsTemplate = mapPin.cloneNode(true);
-  pinsTemplate.querySelector(`img`).src = ad.author.avatar;
-  pinsTemplate.querySelector(`img`).alt = ad.offer.title;
-  const pinX = ad.location.x - (PinSize.WIDTH / 2);
-  const pinY = ad.location.y - PinSize.HEIGHT;
-  pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
-  return pinsTemplate;
-};
-
-const removePins = function () {
-  const allPins = pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-  allPins.forEach(function (pin) {
-    pinsContainer.removeChild(pin);
-  });
-};
-
-const disablePin = function (pin) {
-  const activePin = pinsContainer.querySelector(`.map__pin--active`);
-  pin.classList.add(`map__pin--active`);
-  if (activePin) {
-    window.card.disable();
-    activePin.classList.remove(`map__pin--active`);
-  }
-  pin.classList.remove(`map__pin--active`);
-};
-
-
-window.pin = {
-  Size: PinSize,
-  render: renderPin,
-  remove: removePins,
-  disable: disablePin
-};
-
-
-})();
-
-(() => {
 /*!********************!*\
   !*** ./js/card.js ***!
   \********************/
@@ -517,7 +461,7 @@ const disableCard = function () {
 };
 
 const onCardEscPress = function (evt) {
-  if (window.util.isEscKeyCode(evt.key)) {
+  if (window.util.isEscKeyPress(evt.key)) {
     disableCard();
   }
   document.removeEventListener(`keydown`, onCardEscPress);
@@ -525,70 +469,117 @@ const onCardEscPress = function (evt) {
 
 const renderCard = function (ad) {
   const card = cardTemplate.cloneNode(true);
-
   if (ad.offer.title) {
     card.querySelector(`.popup__title`).textContent = ad.offer.title;
-
   }
 
   if (ad.offer.address) {
     card.querySelector(`.popup__text--address`).textContent = ad.offer.address;
-
   }
 
   if (ad.offer.price) {
     card.querySelector(`.popup__text--price`).textContent = ad.offer.price + ` ₽/ночь`;
-
   }
 
   if (ad.offer.type) {
     const type = card.querySelector(`.popup__type`);
     type.textContent = MAP_HOUSING_TYPES_TO_RU[ad.offer.type];
-
   }
 
   if (ad.offer.rooms && ad.offer.guests) {
     card.querySelector(`.popup__text--capacity`).textContent = ad.offer.rooms + ` комнаты для ` + ad.offer.guests + ` гостей`;
-
   }
 
   if (ad.offer.checkin && ad.offer.checkout) {
     card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + ad.offer.checkin + ` ` + `выезд до ` + ad.offer.checkout;
-
   }
 
   if (ad.offer.description) {
     card.querySelector(`.popup__description`).textContent = ad.offer.description;
-
   }
 
   if (ad.author.avatar) {
     card.querySelector(`.popup__avatar`).src = ad.author.avatar;
-
   }
 
   if (ad.offer.photos) {
     getPhotosNodes(ad.offer.photos, card);
-
   }
 
   if (ad.offer.features) {
     getFeauturesNodes(ad, card);
-
   }
 
   card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
   document.addEventListener(`keydown`, onCardEscPress);
   return card;
-
 };
 
 
 window.card = {
   render: renderCard,
-  disable: disableCard
+  disable: disableCard,
 };
 
+
+
+})();
+
+(() => {
+/*!*******************!*\
+  !*** ./js/pin.js ***!
+  \*******************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements:  */
+/* eslint-disable object-shorthand */
+
+
+const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
+const pinsContainer = document.querySelector(`.map__pins`);
+
+
+const PinSize = {
+  WIDTH: 50,
+  HEIGHT: 70
+};
+
+const renderPin = function (ad) {
+  const pinsTemplate = pinTemplate.cloneNode(true);
+  pinsTemplate.querySelector(`img`).src = ad.author.avatar;
+  pinsTemplate.querySelector(`img`).alt = ad.offer.title;
+  const pinX = ad.location.x - (PinSize.WIDTH / 2);
+  const pinY = ad.location.y - PinSize.HEIGHT;
+  pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
+  return pinsTemplate;
+};
+
+const removePins = function () {
+  const allPins = pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+  allPins.forEach(function (pin) {
+    pinsContainer.removeChild(pin);
+  });
+};
+
+
+const activatePin = function (pin, ad) {
+  pin.addEventListener(`click`, function () {
+    const activePin = pinsContainer.querySelector(`.map__pin--active`);
+    if (activePin) {
+      activePin.classList.remove(`map__pin--active`);
+      window.card.disable();
+    }
+    pin.classList.add(`map__pin--active`);
+    pinsContainer.appendChild(window.card.render(ad));
+  });
+
+};
+
+window.pin = {
+  Size: PinSize,
+  render: renderPin,
+  remove: removePins,
+  activate: activatePin
+};
 
 
 })();
@@ -603,13 +594,14 @@ window.card = {
 
 
 const filter = document.querySelector(`.map__filters`);
-const pinContainer = document.querySelector(`.map__pins`);
+const pinsContainer = document.querySelector(`.map__pins`);
 const houseTypeSelect = document.querySelector(`#housing-type`);
 const housePriceSelect = document.querySelector(`#housing-price`);
 const houseRoomSelect = document.querySelector(`#housing-rooms`);
 const houseGuestSelect = document.querySelector(`#housing-guests`);
 const houseFeaturesSelect = document.querySelector(`#housing-features`);
 const MAX_PINS = 5;
+
 let pins = [];
 
 const FiltersValue = {
@@ -627,7 +619,7 @@ const HousePrice = {
 
 const HousePriceType = {
   LOW: `low`,
-  MEDIUM: `medium`,
+  MEDIUM: `middle`,
   HIGH: `high`
 };
 
@@ -668,36 +660,20 @@ const getFilteredPins = function (ad) {
   return similiarAds.slice(0, MAX_PINS);
 };
 
-const onPinClick = function (pin, ad) {
-  pin.addEventListener(`click`, function () {
-    const activePin = pinContainer.querySelector(`.map__pin--active`);
-    pin.classList.add(`map__pin--active`);
-    if (activePin) {
-      window.card.disable();
-      activePin.classList.remove(`map__pin--active`);
-    }
-    pin.classList.remove(`map__pin--active`);
-    pinContainer.appendChild(window.card.render(ad));
-    window.pin.render(ad);
-
-  });
-};
-
 const updatePins = function (ads) {
-  ads = getFilteredPins(pins);
   window.pin.remove();
-
-  const numberOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
-  for (let i = 0; i < numberOfPins; i++) {
+  ads = getFilteredPins(pins);
+  const numbersOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
+  for (let i = 0; i < numbersOfPins; i++) {
     const currentPin = window.pin.render(ads[i]);
-    pinContainer.appendChild(currentPin);
-    onPinClick(currentPin, ads[i]);
+    pinsContainer.appendChild(currentPin);
+    window.pin.activate(currentPin, ads[i]);
   }
 };
 
 const onSuccessLoad = function (data) {
   pins = data;
-  window.debounce(updatePins(pins));
+  updatePins(pins);
 };
 
 const onErrorLoad = function (errorMessage) {
@@ -714,12 +690,13 @@ const removeChangeListeners = function () {
 
 };
 
-const onFilterChange = function (ad) {
+const onFilterChange = function () {
   addChangeListeners();
-  window.card.disable(ad);
+  window.card.disable();
+  window.debounce(updatePins(pins));
 
-  window.backend.load(onSuccessLoad, onErrorLoad);
 };
+
 
 window.filter = {
   remove: removeChangeListeners,
@@ -799,8 +776,10 @@ const closeErrorMessage = function () {
   document.removeEventListener(`click`, closeErrorMessage);
 };
 
-const onErrorEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, closeErrorMessage);
+const onErrorEscPress = function (key) {
+  if (window.util.isEscKeyPress(key)) {
+    closeErrorMessage();
+  }
 };
 
 const showErrorMessage = function () {
@@ -809,8 +788,10 @@ const showErrorMessage = function () {
   main.appendChild(message);
 };
 
-const onSuccessEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, closeSuccessMessage);
+const onSuccessEscPress = function (key) {
+  if (window.util.isEscKeyPress(key)) {
+    closeSuccessMessage();
+  }
 };
 
 const closeSuccessMessage = function () {
@@ -907,6 +888,7 @@ const activateMap = function () {
   addListeners();
   window.filter.change();
   window.form.enable();
+  window.backend.load(window.filter.success, window.filter.error);
 };
 
 const disableMap = function () {

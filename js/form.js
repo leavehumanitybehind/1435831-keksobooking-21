@@ -59,8 +59,10 @@ const closeErrorMessage = function () {
   document.removeEventListener(`click`, closeErrorMessage);
 };
 
-const onErrorEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, closeErrorMessage);
+const onErrorEscPress = function (key) {
+  if (window.util.isEscKeyPress(key)) {
+    closeErrorMessage();
+  }
 };
 
 const showErrorMessage = function () {
@@ -69,8 +71,10 @@ const showErrorMessage = function () {
   main.appendChild(message);
 };
 
-const onSuccessEscPress = function (evt) {
-  window.util.isEscKeyCode(evt, closeSuccessMessage);
+const onSuccessEscPress = function (key) {
+  if (window.util.isEscKeyPress(key)) {
+    closeSuccessMessage();
+  }
 };
 
 const closeSuccessMessage = function () {

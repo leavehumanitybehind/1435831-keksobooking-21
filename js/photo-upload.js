@@ -7,24 +7,28 @@ const houseFileChooser = document.querySelector(`.ad-form__upload input[type=fil
 const housePreview = document.querySelector(`.ad-form__photo img`);
 
 const showPicture = function (fileChooser, preview) {
-  fileChooser.addEventListener(`change`, function () {
-    const file = fileChooser.files[0];
-    const fileName = file.name.toLowerCase();
+  const file = fileChooser.files[0];
+  const fileName = file.name.toLowerCase();
 
-    const matches = FILE_TYPES.some(function (fileType) {
-      return fileName.endsWith(fileType);
-    });
-
-    if (matches) {
-      const reader = new FileReader();
-      reader.addEventListener(`load`, function () {
-        preview.src = reader.result;
-        preview.setAttribute(`width`, `100%`);
-        preview.setAttribute(`height`, `100%`);
-      });
-      reader.readAsDataURL(file);
-    }
+  const matches = FILE_TYPES.some(function (fileType) {
+    return fileName.endsWith(fileType);
   });
+
+  const reader = new FileReader();
+  reader.addEventListener(`load`, function () {
+    preview.src = reader.result;
+    preview.setAttribute(`width`, `100%`);
+    preview.setAttribute(`height`, `100%`);
+  });
+
+  fileChooser.setCustomValidity(``);
+
+  if (!matches) {
+    fileChooser.setCustomValidity(`Недопустимый формат изображения`);
+    window.validation.setError(fileChooser);
+  }
+  reader.readAsDataURL(file);
+  window.validation.clearError(fileChooser);
 };
 
 const resetPreview = function (preview) {
@@ -38,17 +42,28 @@ const resetPhotos = function () {
   resetPreview(housePreview);
 };
 
-const onPhotoChange = function () {
+
+const changeAvatar = function () {
   showPicture(avatarFileChooser, avatarPreview);
-  showPicture(houseFileChooser, housePreview);
-  avatarFileChooser.removeEventListener(`change`, onPhotoChange);
-  houseFileChooser.removeEventListener(`change`, onPhotoChange);
 };
 
-avatarFileChooser.addEventListener(`change`, onPhotoChange);
-houseFileChooser.addEventListener(`change`, onPhotoChange);
+const changeHousePhoto = function () {
+  showPicture(houseFileChooser, housePreview);
+};
+
+const addListeners = function () {
+  houseFileChooser.addEventListener(`change`, changeHousePhoto);
+  avatarFileChooser.addEventListener(`change`, changeAvatar);
+};
+
+const removeListeners = function () {
+  avatarFileChooser.removeEventListener(`change`, changeAvatar);
+  houseFileChooser.removeEventListener(`change`, changeHousePhoto);
+};
 
 window.photo = {
-  reset: resetPhotos
+  reset: resetPhotos,
+  remove: removeListeners,
+  add: addListeners
 };
 

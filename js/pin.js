@@ -4,7 +4,6 @@
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 const pinsContainer = document.querySelector(`.map__pins`);
 
-
 const PinSize = {
   WIDTH: 50,
   HEIGHT: 70
@@ -31,6 +30,7 @@ const removePins = function () {
 const activatePin = function (pin, ad) {
   pin.addEventListener(`click`, function () {
     const activePin = pinsContainer.querySelector(`.map__pin--active`);
+
     if (activePin) {
       activePin.classList.remove(`map__pin--active`);
       window.card.disable();
@@ -38,7 +38,6 @@ const activatePin = function (pin, ad) {
     pin.classList.add(`map__pin--active`);
     pinsContainer.appendChild(window.card.render(ad));
   });
-
 };
 
 window.pin = {

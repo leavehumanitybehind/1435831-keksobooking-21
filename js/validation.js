@@ -9,7 +9,7 @@ const timeinSelect = adForm.querySelector(`#timein`);
 const timeoutSelect = adForm.querySelector(`#timeout`);
 let roomsNumber = roomNumberSelect.value;
 let capacityNumber = capacitySelect.value;
-
+const inputs = adForm.querySelectorAll(`input`);
 
 const VALIDITY_TEXT = {
   1: `1 комната - для 1 гостя`,
@@ -57,20 +57,32 @@ const onTimeinChange = function (evt) {
   setTimeOption(timeinSelect, evt.target.value);
 };
 
+const setErrorStyle = function (selector) {
+  selector.style.border = `2px dashed #ff0000`;
+};
+
+const clearErrorStyle = function (selector) {
+  selector.style.border = ``;
+};
+
 const syncRoomsGuests = function (rooms, guests) {
   if (guests > rooms && rooms !== 100) {
     capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    setErrorStyle(capacitySelect);
     return;
   }
   if (rooms !== 100 && guests === 0) {
     capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    setErrorStyle(capacitySelect);
     return;
   }
   if (rooms === 100 && guests > 0) {
     capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
+    setErrorStyle(capacitySelect);
     return;
   }
   capacitySelect.setCustomValidity(``);
+  clearErrorStyle(capacitySelect);
 };
 
 roomNumberSelect.addEventListener(`change`, function () {
@@ -98,8 +110,22 @@ const removeChangeListeners = function () {
   timeoutSelect.removeEventListener(`change`, onTimeinChange);
 };
 
+const checkValidity = function () {
+  inputs.forEach(function (input) {
+    if (!input.checkValidity()) {
+      input.style.border = `2px dashed #ff0000`;
+    } else {
+      input.style.border = ``;
+    }
+  });
+
+};
+
 
 window.validation = {
   change: addChangeListeners,
-  remove: removeChangeListeners
+  remove: removeChangeListeners,
+  check: checkValidity,
+  setError: setErrorStyle,
+  clearError: clearErrorStyle
 };

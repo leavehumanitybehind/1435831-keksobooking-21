@@ -31,16 +31,16 @@ const HousePriceType = {
   HIGH: `high`
 };
 
-const checkPrice = function (ad) {
+const checkPrice = function (ad, price) {
   switch (housePriceSelect.value) {
     case FiltersValue.ANY:
       return true;
     case HousePriceType.LOW:
-      return (ad.offer.price < HousePrice.MIN);
+      return (price < HousePrice.MIN);
     case HousePriceType.MEDIUM:
-      return ad.offer.price >= HousePrice.MIN && ad.offer.price <= HousePrice.MAX;
+      return price >= HousePrice.MIN && price <= HousePrice.MAX;
     case HousePriceType.HIGH:
-      return ad.offer.price > HousePrice.MAX;
+      return price > HousePrice.MAX;
   }
   return false;
 };
@@ -60,17 +60,16 @@ const filterAd = function (ad) {
   return (filterElement(houseTypeSelect, FiltersValue.TYPE, ad)) &&
     (filterElement(houseRoomSelect, FiltersValue.ROOM, ad)) &&
     (filterElement(houseGuestSelect, FiltersValue.GUEST, ad)) &&
-    checkFeatures(ad) && checkPrice(ad);
+    checkFeatures(ad) && checkPrice(ad, ad.offer.price);
 };
 
-const getFilteredPins = function (ad) {
+const getFilteredAds = function (ad) {
   let similiarAds = ad.filter(filterAd);
   return similiarAds.slice(0, MAX_PINS);
 };
 
 const updatePins = function (ads) {
-  window.pin.remove();
-  ads = getFilteredPins(pins);
+  ads = getFilteredAds(pins);
   const numbersOfPins = ads.length > MAX_PINS ? MAX_PINS : ads.length;
   for (let i = 0; i < numbersOfPins; i++) {
     const currentPin = window.pin.render(ads[i]);
@@ -90,25 +89,25 @@ const onErrorLoad = function (errorMessage) {
 
 
 const addChangeListeners = function () {
-  filter.addEventListener(`change`, onFilterChange);
+  filter.addEventListener(`change`, enableFilters);
 };
 
 const removeChangeListeners = function () {
-  filter.removeEventListener(`change`, onFilterChange);
+  filter.removeEventListener(`change`, enableFilters);
 
 };
 
-const onFilterChange = function () {
+const enableFilters = function () {
   addChangeListeners();
   window.card.disable();
+  window.pin.remove();
   window.debounce(updatePins(pins));
-
 };
 
 
 window.filter = {
   remove: removeChangeListeners,
-  change: onFilterChange,
+  change: addChangeListeners,
   error: onErrorLoad,
   success: onSuccessLoad,
 };

@@ -18,7 +18,7 @@ const submitButton = adForm.querySelector(`.ad-form__submit`);
 const textArea = adForm.querySelector(`textarea`);
 
 
-const resetCheckbox = function (checkboxes) {
+const resetCheckboxes = function (checkboxes) {
   checkboxes.forEach(function (checkbox) {
     if (checkbox.checked) {
       checkbox.checked = false;
@@ -28,7 +28,7 @@ const resetCheckbox = function (checkboxes) {
 
 const resetForm = function () {
   adForm.reset();
-  resetCheckbox(checkedFeaturesItems);
+  resetCheckboxes(checkedFeaturesItems);
 };
 
 const resetFilters = function () {
@@ -36,7 +36,7 @@ const resetFilters = function () {
     option.value = `any`;
     return option;
   });
-  resetCheckbox(checkedFeaturesFilters);
+  resetCheckboxes(checkedFeaturesFilters);
 };
 
 const disableFormControls = function (controls) {
@@ -77,15 +77,23 @@ const onSuccessEscPress = function (key) {
   }
 };
 
+const onErrorMessageClick = function () {
+  closeSuccessMessage();
+};
+
+const onSuccessMessageClick = function () {
+  closeSuccessMessage();
+};
+
 const closeSuccessMessage = function () {
   main.removeChild(main.querySelector(`.success`));
   document.removeEventListener(`keydown`, onSuccessEscPress);
-  document.removeEventListener(`click`, closeSuccessMessage);
+  document.removeEventListener(`click`, onSuccessMessageClick);
 };
 
 const showSuccessMessage = function () {
   const message = success.cloneNode(true);
-  message.querySelector(`.success`).addEventListener(`click`, closeSuccessMessage);
+  message.querySelector(`.success`).addEventListener(`click`, onErrorMessageClick);
   main.appendChild(message);
 };
 
@@ -98,7 +106,6 @@ const enableForm = function () {
   submitButton.removeAttribute(`disabled`, `disabled`);
   resetButton.removeAttribute(`disabled`, `disabled`);
   textArea.removeAttribute(`disabled`, `disabled`);
-
 };
 
 
@@ -114,17 +121,6 @@ const disableForm = function () {
 
 };
 
-const checkValidity = function () {
-  inputs.forEach(function (input) {
-    if (!input.checkValidity()) {
-      input.style.border = `2px dashed #ff0000`;
-    } else {
-      input.style.border = ``;
-    }
-  });
-};
-
-
 window.form = {
   enable: enableForm,
   disable: disableForm,
@@ -132,7 +128,6 @@ window.form = {
   resetFilters: resetFilters,
   success: showSuccessMessage,
   error: showErrorMessage,
-  check: checkValidity
 };
 
 

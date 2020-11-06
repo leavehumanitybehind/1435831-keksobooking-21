@@ -3,7 +3,6 @@ module.exports = {
   entry: [
     "./js/util.js",
     "./js/backend.js",
-    "./js/photo-upload.js",
     "./js/debounce.js",
     "./js/move.js",
     "./js/validation.js",
@@ -11,8 +10,8 @@ module.exports = {
     "./js/pin.js",
     "./js/filter.js",
     "./js/form.js",
-    "./js/main.js",
-
+    "./js/photo-upload.js",
+    "./js/main.js"
   ],
 output: {
   filename: 'bundle.js',

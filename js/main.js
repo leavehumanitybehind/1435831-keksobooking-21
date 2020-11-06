@@ -6,12 +6,9 @@ const mapFiltersForm = document.querySelector(`.map__filters`);
 const adForm = document.querySelector(`.ad-form`);
 const resetButton = adForm.querySelector(`.ad-form__reset`);
 const MOUSE_LEFT_CLICK = 1;
-const MAIN_PIN_DEFAULT_X = `570px`;
-const MAIN_PIN_DEFAULT_Y = `375px`;
 
-
-const onResetButtonClick = function () {
-  resetButton.addEventListener(`click`, (evt) => {
+const clickOnResetButton = function () {
+  resetButton.addEventListener(`click`, function (evt) {
     evt.preventDefault();
     disableMap();
   });
@@ -25,6 +22,7 @@ const activateMap = function () {
   window.filter.change();
   window.form.enable();
   window.backend.load(window.filter.success, window.filter.error);
+  window.move.address(window.move.getCoords);
 };
 
 const disableMap = function () {
@@ -34,13 +32,11 @@ const disableMap = function () {
   window.form.reset();
   window.form.resetFilters();
   window.card.disable();
-  window.move.address(window.move.getCoords);
-  mainPin.style.left = MAIN_PIN_DEFAULT_X;
-  mainPin.style.top = MAIN_PIN_DEFAULT_Y;
+  window.move.defaultCoords();
   window.filter.remove();
   window.photo.reset();
   removeListeners();
-  onResetButtonClick();
+  clickOnResetButton();
   mainPin.addEventListener(`mousedown`, onMouseDown);
   mainPin.addEventListener(`keydown`, onKeyDown);
   mapFiltersForm.classList.add(`map__filters--disabled`);
@@ -48,7 +44,7 @@ const disableMap = function () {
 };
 
 
-const onSubmitForm = function (evt) {
+const onFormSubmit = function (evt) {
   evt.preventDefault();
   window.backend.upload(window.form.success, window.form.error, new FormData(adForm));
   disableMap();
@@ -56,16 +52,18 @@ const onSubmitForm = function (evt) {
 
 const addListeners = function () {
   window.validation.change();
-  adForm.addEventListener(`change`, window.form.check);
-  adForm.addEventListener(`submit`, onSubmitForm);
+  window.photo.add();
+  adForm.addEventListener(`change`, window.validation.check);
+  adForm.addEventListener(`submit`, onFormSubmit);
 
 
 };
 
 const removeListeners = function () {
   window.validation.remove();
-  adForm.removeEventListener(`submit`, onSubmitForm);
-  resetButton.removeEventListener(`click`, onResetButtonClick);
+  window.photo.remove();
+  adForm.removeEventListener(`submit`, onFormSubmit);
+  resetButton.removeEventListener(`click`, clickOnResetButton);
 };
 
 
@@ -77,7 +75,7 @@ const onMouseDown = function (evt) {
 };
 
 const onKeyDown = function (evt) {
-  if (evt.code === window.util.KeyCode.ENTER) {
+  if (window.util.isEnterKeyPress(evt.key)) {
     activateMap();
   }
   mainPin.removeEventListener(`keydown`, onKeyDown);

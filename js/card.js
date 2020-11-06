@@ -31,7 +31,7 @@ const getFeauturesNodes = function (ad, card) {
 const createPhotoMarkup = function (src) {
   const photo = document.createElement(`img`);
   photo.classList.add(`popup__photo`);
-  photo.src = src;
+  photo.src = `${src}`;
   photo.alt = `Photo`;
   photo.width = `45`;
   photo.height = `40`;
@@ -40,6 +40,7 @@ const createPhotoMarkup = function (src) {
 
 const getPhotosNodes = function (photos, card) {
   const photoContainer = card.querySelector(`.popup__photos`);
+  photoContainer.innerHTML = ``;
   photos.forEach(function (photo) {
     photoContainer.appendChild(createPhotoMarkup(photo));
   });
@@ -49,6 +50,7 @@ const disableCard = function () {
   const card = pinsContainer.querySelector(`.map__card`);
   if (card) {
     pinsContainer.removeChild(card);
+    card.removeEventListener(`click`, disableCard);
   }
 };
 

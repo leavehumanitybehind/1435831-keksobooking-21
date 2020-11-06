@@ -10,11 +10,23 @@ const PinSize = {
 };
 
 const renderPin = function (ad) {
+  const {
+    offer: {
+      title
+    },
+    author: {
+      avatar
+    },
+    location: {
+      x,
+      y
+    }
+  } = ad;
   const pinsTemplate = pinTemplate.cloneNode(true);
-  pinsTemplate.querySelector(`img`).src = ad.author.avatar;
-  pinsTemplate.querySelector(`img`).alt = ad.offer.title;
-  const pinX = ad.location.x - (PinSize.WIDTH / 2);
-  const pinY = ad.location.y - PinSize.HEIGHT;
+  pinsTemplate.querySelector(`img`).src = avatar;
+  pinsTemplate.querySelector(`img`).alt = title;
+  const pinX = x - (PinSize.WIDTH / 2);
+  const pinY = y - PinSize.HEIGHT;
   pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
   return pinsTemplate;
 };

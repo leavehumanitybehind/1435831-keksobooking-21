@@ -6,15 +6,23 @@ const mapFiltersForm = document.querySelector(`.map__filters`);
 const adForm = document.querySelector(`.ad-form`);
 const resetButton = adForm.querySelector(`.ad-form__reset`);
 const MOUSE_LEFT_CLICK = 1;
+const submitButton = adForm.querySelector(`.ad-form__submit`);
 
-const clickOnResetButton = function () {
-  resetButton.addEventListener(`click`, function (evt) {
-    evt.preventDefault();
-    disableMap();
-  });
+const onSuccessLoad = (data) => {
+  window.pin.ads = data;
+  window.pin.renderPinElements(window.pin.ads);
 };
 
-const activateMap = function () {
+const onErrorLoad = (errorMessage) => {
+  window.util.createErrorMessage(errorMessage);
+};
+
+const onResetButtonClick = (evt) => {
+  evt.preventDefault();
+  disableMap();
+};
+
+const activateMap = () => {
   map.classList.remove(`map--faded`);
   mapFiltersForm.classList.remove(`map__filters--disabled`);
   adForm.classList.remove(`ad-form--disabled`);
@@ -22,59 +30,57 @@ const activateMap = function () {
   window.filter.change();
   window.form.enable();
   window.move.address(window.move.getCoords);
-  window.backend.load(window.filter.success, window.filter.error);
+  window.backend.load(onSuccessLoad, onErrorLoad);
 };
 
-const disableMap = function () {
+const disableMap = () => {
   map.classList.add(`map--faded`);
   window.form.disable();
   window.pin.remove();
   window.form.reset();
   window.form.resetFilters();
   window.card.disable();
-  window.move.defaultCoords();
   window.filter.remove();
   window.photo.reset();
   removeListeners();
-  clickOnResetButton();
   mainPin.addEventListener(`mousedown`, onMouseDown);
   mainPin.addEventListener(`keydown`, onKeyDown);
   mapFiltersForm.classList.add(`map__filters--disabled`);
   adForm.classList.add(`ad-form--disabled`);
+  window.move.defaultCoords();
+  window.move.setDefaultPosition();
 };
 
-
-const onFormSubmit = function (evt) {
+const onFormSubmit = (evt) => {
   evt.preventDefault();
   window.backend.upload(window.form.success, window.form.error, new FormData(adForm));
   disableMap();
 };
 
-const addListeners = function () {
+const addListeners = () => {
   window.validation.change();
-  window.photo.add();
-  adForm.addEventListener(`change`, window.validation.check);
+  window.photo.addListeners();
   adForm.addEventListener(`submit`, onFormSubmit);
-
-
+  submitButton.addEventListener(`click`, window.validation.check);
+  resetButton.addEventListener(`click`, onResetButtonClick);
 };
 
-const removeListeners = function () {
+const removeListeners = () => {
   window.validation.remove();
-  window.photo.remove();
+  window.photo.removeListeners();
   adForm.removeEventListener(`submit`, onFormSubmit);
-  resetButton.removeEventListener(`click`, clickOnResetButton);
+  resetButton.removeEventListener(`click`, onResetButtonClick);
+  submitButton.removeEventListener(`click`, window.validation.check);
 };
 
-
-const onMouseDown = function (evt) {
+const onMouseDown = (evt) => {
   if (evt.which === MOUSE_LEFT_CLICK) {
     activateMap();
   }
   mainPin.removeEventListener(`mousedown`, onMouseDown);
 };
 
-const onKeyDown = function (evt) {
+const onKeyDown = (evt) => {
   if (window.util.isEnterKeyPress(evt.key)) {
     activateMap();
   }

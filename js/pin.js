@@ -1,15 +1,16 @@
-/* eslint-disable object-shorthand */
 "use strict";
 
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 const pinsContainer = document.querySelector(`.map__pins`);
+let ads = [];
+const MAX_PINS = 5;
 
 const PinSize = {
   WIDTH: 50,
   HEIGHT: 70
 };
 
-const renderPin = function (ad) {
+const renderPin = (ad) => {
   const {
     offer: {
       title
@@ -27,20 +28,20 @@ const renderPin = function (ad) {
   pinsTemplate.querySelector(`img`).alt = title;
   const pinX = x - (PinSize.WIDTH / 2);
   const pinY = y - PinSize.HEIGHT;
-  pinsTemplate.style = `left:` + pinX + `px; top:` + pinY + `px;`;
+  pinsTemplate.style.left = pinX + `px`;
+  pinsTemplate.style.top = pinY + `px`;
   return pinsTemplate;
 };
 
-const removePins = function () {
+const removePins = () => {
   const allPins = pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-  allPins.forEach(function (pin) {
+  allPins.forEach((pin) => {
     pinsContainer.removeChild(pin);
   });
 };
 
-
-const activatePin = function (pin, ad) {
-  pin.addEventListener(`click`, function () {
+const activatePin = (pin, ad) => {
+  pin.addEventListener(`click`, () => {
     const activePin = pinsContainer.querySelector(`.map__pin--active`);
 
     if (activePin) {
@@ -52,10 +53,25 @@ const activatePin = function (pin, ad) {
   });
 };
 
+const renderPinElements = (offers) => {
+  const fragment = document.createDocumentFragment();
+  ads = offers;
+  const adsNumber = ads.length > MAX_PINS ? MAX_PINS : ads.length;
+  for (let i = 0; i < adsNumber; i++) {
+    const pinElement = renderPin(ads[i]);
+    fragment.append(pinElement);
+    activatePin(pinElement, ads[i]);
+  }
+
+  pinsContainer.appendChild(fragment);
+};
+
 window.pin = {
   Size: PinSize,
   render: renderPin,
   remove: removePins,
-  activate: activatePin
+  activate: activatePin,
+  renderPinElements,
+  ads,
 };
 

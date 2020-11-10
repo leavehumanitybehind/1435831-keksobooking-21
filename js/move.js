@@ -3,7 +3,6 @@
 const mainPin = document.querySelector(`.map__pin--main`);
 const map = document.querySelector(`.map`);
 const address = document.querySelector(`#address`);
-const PX = ` px`;
 
 const MainPinDefaultCoords = {
   X: 570,
@@ -22,15 +21,18 @@ const MainPinSize = {
   POINT_HEIGHT: 22
 };
 
-const setDefaultMainPinCoords = function () {
+const setDefaultPosition = () => {
+  mainPin.style.left = MainPinDefaultCoords.X + `px`;
+  mainPin.style.top = MainPinDefaultCoords.Y + `px`;
+};
+
+const getDefaultMainPinCoords = () => {
   const x = MainPinDefaultCoords.X + Math.floor(MainPinSize.WIDTH / 2);
   const y = MainPinDefaultCoords.Y + MainPinSize.HEIGHT;
-  mainPin.style.left = MainPinDefaultCoords.X + PX;
-  mainPin.style.top = MainPinDefaultCoords.Y + PX;
   address.value = x + `,` + y;
 };
 
-const getMainPinCoords = function () {
+const getMainPinCoords = () => {
   const x = mainPin.offsetLeft + Math.floor(MainPinSize.WIDTH / 2);
   const y = mainPin.offsetTop + (MainPinSize.HEIGHT + MainPinSize.POINT_HEIGHT);
 
@@ -40,12 +42,12 @@ const getMainPinCoords = function () {
   };
 };
 
-const setAddress = function () {
+const setAddress = () => {
   const mainPinCoords = getMainPinCoords();
   address.value = mainPinCoords.x + `,` + mainPinCoords.y;
 };
 
-mainPin.addEventListener(`mousedown`, function (evt) {
+mainPin.addEventListener(`mousedown`, (evt) => {
   evt.preventDefault();
 
   let startCoords = {
@@ -53,7 +55,7 @@ mainPin.addEventListener(`mousedown`, function (evt) {
     y: evt.clientY
   };
 
-  const onMouseMove = function (moveEvt) {
+  const onMouseMove = (moveEvt) => {
     moveEvt.preventDefault();
     const shift = {
       x: startCoords.x - moveEvt.clientX,
@@ -77,7 +79,7 @@ mainPin.addEventListener(`mousedown`, function (evt) {
   };
 
 
-  const onMouseUp = function (upEvt) {
+  const onMouseUp = (upEvt) => {
     upEvt.preventDefault();
 
     document.removeEventListener(`mousemove`, onMouseMove);
@@ -90,7 +92,8 @@ mainPin.addEventListener(`mousedown`, function (evt) {
 
 window.move = {
   getCoords: getMainPinCoords,
-  defaultCoords: setDefaultMainPinCoords,
+  defaultCoords: getDefaultMainPinCoords,
+  setDefaultPosition,
   address: setAddress
 };
 

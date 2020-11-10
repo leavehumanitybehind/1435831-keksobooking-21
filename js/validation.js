@@ -7,9 +7,10 @@ const housingSelect = adForm.querySelector(`#type`);
 const priceInput = adForm.querySelector(`#price`);
 const timeinSelect = adForm.querySelector(`#timein`);
 const timeoutSelect = adForm.querySelector(`#timeout`);
+const inputs = adForm.querySelectorAll(`input`);
 let roomsNumber = roomNumberSelect.value;
 let capacityNumber = capacitySelect.value;
-const inputs = adForm.querySelectorAll(`input`);
+const ERROR_STYLE = `2px dashed #ff0000`;
 
 const VALIDITY_TEXT = {
   1: `1 комната - для 1 гостя`,
@@ -26,106 +27,92 @@ const MIN_PRICE = {
 };
 const MAX_PRICE = 1000000;
 
-
-const onHousingTypeChange = function () {
+const onHousingTypeChange = () => {
   priceInput.min = MIN_PRICE[housingSelect.value];
   priceInput.placeholder = MIN_PRICE[housingSelect.value];
-  let minPrice = MIN_PRICE[adForm.type.value];
+  const minPrice = MIN_PRICE[adForm.type.value];
   adForm.price.setAttribute(`min`, minPrice);
 };
 
-const onPriceInputChange = function () {
+const onPriceInputChange = () => {
   if (priceInput.value > MAX_PRICE) {
     priceInput.setCustomValidity(`Максимальная цена ` + MAX_PRICE);
-    priceInput.classList.add(`invalid`);
     return;
   }
   priceInput.setCustomValidity(``);
-  priceInput.classList.remove(`invalid`);
 };
 
-
-const setTimeOption = function (timeSelect, value) {
+const setTimeOption = (timeSelect, value) => {
   timeSelect.value = value;
 };
 
-const onTimeoutChange = function (evt) {
+const onTimeoutChange = (evt) => {
   setTimeOption(timeoutSelect, evt.target.value);
 };
 
-const onTimeinChange = function (evt) {
+const onTimeinChange = (evt) => {
   setTimeOption(timeinSelect, evt.target.value);
 };
 
-const setErrorStyle = function (selector) {
-  selector.style.border = `2px dashed #ff0000`;
-};
-
-const clearErrorStyle = function (selector) {
-  selector.style.border = ``;
-};
-
-const syncRoomsGuests = function (rooms, guests) {
+const syncRoomsGuests = (rooms, guests) => {
   if (guests > rooms && rooms !== 100) {
     capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
-    setErrorStyle(capacitySelect);
     return;
   }
   if (rooms !== 100 && guests === 0) {
     capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
-    setErrorStyle(capacitySelect);
     return;
   }
-  if (rooms === 100 && guests > 0) {
+  if (rooms === 100 && guests !== 0) {
     capacitySelect.setCustomValidity(VALIDITY_TEXT[rooms]);
-    setErrorStyle(capacitySelect);
     return;
   }
   capacitySelect.setCustomValidity(``);
-  clearErrorStyle(capacitySelect);
 };
 
-roomNumberSelect.addEventListener(`change`, function () {
+roomNumberSelect.addEventListener(`change`, () => {
   roomsNumber = roomNumberSelect.value;
   syncRoomsGuests(roomsNumber, capacityNumber);
 });
 
-capacitySelect.addEventListener(`change`, function () {
+capacitySelect.addEventListener(`change`, () => {
   capacityNumber = capacitySelect.value;
   capacitySelect.setCustomValidity(``);
   syncRoomsGuests(roomsNumber, capacityNumber);
 });
 
-const addChangeListeners = function () {
+capacitySelect.addEventListener(`invalid`, () => {
+  capacitySelect.style.border = ERROR_STYLE;
+});
+
+
+const addChangeListeners = () => {
   housingSelect.addEventListener(`change`, onHousingTypeChange);
   priceInput.addEventListener(`change`, onPriceInputChange);
   timeinSelect.addEventListener(`change`, onTimeoutChange);
   timeoutSelect.addEventListener(`change`, onTimeinChange);
+
 };
 
-const removeChangeListeners = function () {
+const removeChangeListeners = () => {
   housingSelect.removeEventListener(`change`, onHousingTypeChange);
   priceInput.removeEventListener(`change`, onPriceInputChange);
   timeinSelect.removeEventListener(`change`, onTimeoutChange);
   timeoutSelect.removeEventListener(`change`, onTimeinChange);
 };
 
-const checkValidity = function () {
-  inputs.forEach(function (input) {
-    if (!input.checkValidity()) {
-      input.style.border = `2px dashed #ff0000`;
-    } else {
-      input.style.border = ``;
-    }
+const checkValidity = () => {
+  inputs.forEach((input) => {
+    adForm.checkValidity();
+    input.addEventListener(`invalid`, () => {
+      input.style.border = ERROR_STYLE;
+    });
+    input.style.border = ``;
   });
-
 };
-
 
 window.validation = {
   change: addChangeListeners,
   remove: removeChangeListeners,
-  check: checkValidity,
-  setError: setErrorStyle,
-  clearError: clearErrorStyle
+  check: checkValidity
 };

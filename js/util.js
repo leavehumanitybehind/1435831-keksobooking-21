@@ -1,4 +1,3 @@
-
 "use strict";
 
 const KeyCode = {
@@ -6,15 +5,15 @@ const KeyCode = {
   ESCAPE: `Escape`,
 };
 
-const isEnterKeyPress = function (key) {
+const isEnterKeyPress = (key) => {
   return key === KeyCode.ENTER;
 };
 
-const isEscKeyPress = function (key) {
+const isEscKeyPress = (key) => {
   return key === KeyCode.ESCAPE;
 };
 
-const createErrorMessage = function (message) {
+const createErrorMessage = (message) => {
   const node = document.createElement(`div`);
   node.style = `z-index: 100; margin:auto; text-align: center; background-color: rgba(0,0,0, 0.4);`;
   node.style.position = `absolute`;

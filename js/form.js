@@ -1,4 +1,3 @@
-/* eslint-disable object-shorthand */
 "use strict";
 
 const adForm = document.querySelector(`.ad-form`);
@@ -18,86 +17,86 @@ const submitButton = adForm.querySelector(`.ad-form__submit`);
 const textArea = adForm.querySelector(`textarea`);
 
 
-const resetCheckboxes = function (checkboxes) {
-  checkboxes.forEach(function (checkbox) {
+const resetCheckboxes = (checkboxes) => {
+  checkboxes.forEach((checkbox) => {
     if (checkbox.checked) {
       checkbox.checked = false;
     }
   });
 };
 
-const resetForm = function () {
+const resetForm = () => {
   adForm.reset();
   resetCheckboxes(checkedFeaturesItems);
 };
 
-const resetFilters = function () {
-  mapFiltersForm.querySelectorAll(`select`).forEach(function (option) {
+const resetFilters = () => {
+  mapFiltersForm.querySelectorAll(`select`).forEach((option) => {
     option.value = `any`;
     return option;
   });
   resetCheckboxes(checkedFeaturesFilters);
 };
 
-const disableFormControls = function (controls) {
-  controls.forEach(function (control) {
+const disableFormControls = (controls) => {
+  controls.forEach((control) => {
     control.setAttribute(`disabled`, `disabled`);
   });
   mapFiltersForm.setAttribute(`disabled`, `disabled`);
 };
 
-const enableControls = function (controls) {
-  controls.forEach(function (control) {
+const enableControls = (controls) => {
+  controls.forEach((control) => {
     control.removeAttribute(`disabled`, `disabled`);
   });
   mapFiltersForm.removeAttribute(`disabled`, `disabled`);
 };
 
-const closeErrorMessage = function () {
+const closeErrorMessage = () => {
   main.removeChild(main.querySelector(`.error`));
   document.removeEventListener(`keydown`, onErrorEscPress);
   document.removeEventListener(`click`, closeErrorMessage);
 };
 
-const onErrorEscPress = function (key) {
+const onErrorEscPress = (key) => {
   if (window.util.isEscKeyPress(key)) {
     closeErrorMessage();
   }
 };
 
-const showErrorMessage = function () {
+const showErrorMessage = () => {
   const message = error.cloneNode(true);
   message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
   main.appendChild(message);
 };
 
-const onSuccessEscPress = function (key) {
+const onSuccessEscPress = (key) => {
   if (window.util.isEscKeyPress(key)) {
     closeSuccessMessage();
   }
 };
 
-const onErrorMessageClick = function () {
+const onErrorMessageClick = () => {
   closeSuccessMessage();
 };
 
-const onSuccessMessageClick = function () {
+const onSuccessMessageClick = () => {
   closeSuccessMessage();
 };
 
-const closeSuccessMessage = function () {
+const closeSuccessMessage = () => {
   main.removeChild(main.querySelector(`.success`));
   document.removeEventListener(`keydown`, onSuccessEscPress);
   document.removeEventListener(`click`, onSuccessMessageClick);
 };
 
-const showSuccessMessage = function () {
+const showSuccessMessage = () => {
   const message = success.cloneNode(true);
   message.querySelector(`.success`).addEventListener(`click`, onErrorMessageClick);
   main.appendChild(message);
 };
 
-const enableForm = function () {
+const enableForm = () => {
   enableControls(fieldsets);
   enableControls(inputs);
   enableControls(adFormSelects);
@@ -108,8 +107,7 @@ const enableForm = function () {
   textArea.removeAttribute(`disabled`, `disabled`);
 };
 
-
-const disableForm = function () {
+const disableForm = () => {
   disableFormControls(fieldsets);
   disableFormControls(inputs);
   disableFormControls(adFormSelects);
@@ -118,14 +116,13 @@ const disableForm = function () {
   submitButton.setAttribute(`disabled`, `disabled`);
   resetButton.setAttribute(`disabled`, `disabled`);
   textArea.setAttribute(`disabled`, `disabled`);
-
 };
 
 window.form = {
   enable: enableForm,
   disable: disableForm,
   reset: resetForm,
-  resetFilters: resetFilters,
+  resetFilters,
   success: showSuccessMessage,
   error: showErrorMessage,
 };

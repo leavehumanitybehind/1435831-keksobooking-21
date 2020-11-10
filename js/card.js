@@ -9,8 +9,21 @@ const MAP_HOUSING_TYPES_TO_RU = {
 
 const pinsContainer = document.querySelector(`.map__pins`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
+const PhotoSize = {
+  WIDTH: 45,
+  HEIGHT: 40
+};
 
-const createFeatures = function (ad) {
+const Rooms = {
+  ONE_ROOM: 1,
+  FIVE_ROOMS: 5
+};
+
+const Guests = {
+  ONE_GUEST: 1
+};
+
+const createFeatures = (ad) => {
   const featuresFragment = document.createDocumentFragment();
   for (let i = 0; i < ad.offer.features.length; i++) {
     const newFeature = document.createElement(`li`);
@@ -21,24 +34,24 @@ const createFeatures = function (ad) {
   return featuresFragment;
 };
 
-const getFeauturesNodes = function (ad, card) {
+const insertFeauturesNodes = (ad, card) => {
   const featuresContainer = card.querySelector(`.popup__features`);
   featuresContainer.innerHTML = ``;
   const featuresFragment = createFeatures(ad);
   featuresContainer.appendChild(featuresFragment);
 };
 
-const createPhotoMarkup = function (src) {
+const createPhotoMarkup = (src) => {
   const photo = document.createElement(`img`);
   photo.classList.add(`popup__photo`);
-  photo.src = `${src}`;
+  photo.src = src;
   photo.alt = `Photo`;
-  photo.width = `45`;
-  photo.height = `40`;
+  photo.width = PhotoSize.WIDTH;
+  photo.height = PhotoSize.HEIGHT;
   return photo;
 };
 
-const getPhotosNodes = function (photos, card) {
+const insertPhotosNodes = (photos, card) => {
   const photoContainer = card.querySelector(`.popup__photos`);
   photoContainer.innerHTML = ``;
   photos.forEach(function (photo) {
@@ -46,7 +59,7 @@ const getPhotosNodes = function (photos, card) {
   });
 };
 
-const disableCard = function () {
+const disableCard = () => {
   const card = pinsContainer.querySelector(`.map__card`);
   if (card) {
     pinsContainer.removeChild(card);
@@ -54,14 +67,14 @@ const disableCard = function () {
   }
 };
 
-const onCardEscPress = function (evt) {
+const onCardEscPress = (evt) => {
   if (window.util.isEscKeyPress(evt.key)) {
     disableCard();
   }
   document.removeEventListener(`keydown`, onCardEscPress);
 };
 
-const renderCard = function (ad) {
+const renderCard = (ad) => {
   const card = cardTemplate.cloneNode(true);
   const {
     offer: {
@@ -99,13 +112,13 @@ const renderCard = function (ad) {
   }
 
   if (rooms && guests) {
-    if (rooms > 1 && rooms < 5 && guests > 1) {
+    if (rooms > Rooms.ONE_ROOM && rooms < Rooms.FIVE_ROOMS && guests > Guests.ONE_GUEST) {
       card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнаты для ` + guests + ` гостей`;
     }
-    if (rooms === 1 && guests === 1) {
+    if (rooms === Rooms.ONE_ROOM && guests === Guests.ONE_GUEST) {
       card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комната для ` + guests + ` гостя`;
     }
-    if (rooms >= 5) {
+    if (rooms >= Rooms.ONE_ROOM) {
       card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнат для ` + guests + ` гостей`;
     }
 
@@ -124,11 +137,11 @@ const renderCard = function (ad) {
   }
 
   if (photos) {
-    getPhotosNodes(photos, card);
+    insertPhotosNodes(photos, card);
   }
 
   if (features) {
-    getFeauturesNodes(ad, card);
+    insertFeauturesNodes(ad, card);
   }
 
   card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);

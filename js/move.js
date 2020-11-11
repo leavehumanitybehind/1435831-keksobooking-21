@@ -92,7 +92,7 @@ mainPin.addEventListener(`mousedown`, (evt) => {
 
 window.move = {
   getCoords: getMainPinCoords,
-  defaultCoords: getDefaultMainPinCoords,
+  getDefaultCoords: getDefaultMainPinCoords,
   setDefaultPosition,
   address: setAddress
 };

@@ -15,6 +15,7 @@ const checkedFeaturesItems = adForm.querySelectorAll(`.feature__checkbox`);
 const resetButton = adForm.querySelector(`.ad-form__reset`);
 const submitButton = adForm.querySelector(`.ad-form__submit`);
 const textArea = adForm.querySelector(`textarea`);
+const capacitySelect = document.querySelector(`#capacity`);
 
 
 const resetCheckboxes = (checkboxes) => {
@@ -27,6 +28,7 @@ const resetCheckboxes = (checkboxes) => {
 
 const resetForm = () => {
   adForm.reset();
+  capacitySelect.style.border = ``;
   resetCheckboxes(checkedFeaturesItems);
 };
 
@@ -66,7 +68,7 @@ const onErrorEscPress = (key) => {
 
 const showErrorMessage = () => {
   const message = error.cloneNode(true);
-  message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
+  message.querySelector(`.error`).addEventListener(`click`, onErrorMessageClick);
   main.appendChild(message);
 };
 
@@ -92,7 +94,7 @@ const closeSuccessMessage = () => {
 
 const showSuccessMessage = () => {
   const message = success.cloneNode(true);
-  message.querySelector(`.success`).addEventListener(`click`, onErrorMessageClick);
+  message.querySelector(`.success`).addEventListener(`click`, onSuccessMessageClick);
   main.appendChild(message);
 };
 

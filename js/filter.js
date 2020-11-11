@@ -58,12 +58,12 @@ const filterAd = (ad) => {
     checkFeatures(ad.offer.features) && checkPrice(ad, ad.offer.price);
 };
 
-const getFilteredAds = function (ad) {
-  let similiarAds = ad.filter(filterAd);
+const getFilteredAds = (ad) => {
+  const similiarAds = ad.filter(filterAd);
   return similiarAds;
 };
 
-const updatePins = function (offers) {
+const updatePins = (offers) => {
   const pins = getFilteredAds(offers);
   window.pin.renderPinElements(pins);
 };

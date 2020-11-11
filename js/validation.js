@@ -68,6 +68,8 @@ const syncRoomsGuests = (rooms, guests) => {
     return;
   }
   capacitySelect.setCustomValidity(``);
+  capacitySelect.removeEventListener(`invalid`, syncRoomsGuests);
+  capacitySelect.style.border = ``;
 };
 
 roomNumberSelect.addEventListener(`change`, () => {

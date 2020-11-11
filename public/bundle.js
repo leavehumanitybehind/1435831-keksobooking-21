@@ -232,7 +232,7 @@ mainPin.addEventListener(`mousedown`, (evt) => {
 
 window.move = {
   getCoords: getMainPinCoords,
-  defaultCoords: getDefaultMainPinCoords,
+  getDefaultCoords: getDefaultMainPinCoords,
   setDefaultPosition,
   address: setAddress
 };
@@ -316,6 +316,8 @@ const syncRoomsGuests = (rooms, guests) => {
     return;
   }
   capacitySelect.setCustomValidity(``);
+  capacitySelect.removeEventListener(`invalid`, syncRoomsGuests);
+  capacitySelect.style.border = ``;
 };
 
 roomNumberSelect.addEventListener(`change`, () => {
@@ -470,54 +472,57 @@ const renderCard = (ad) => {
     }
   } = ad;
 
-  if (title) {
-    card.querySelector(`.popup__title`).textContent = title;
-  }
-
-  if (address) {
-    card.querySelector(`.popup__text--address`).textContent = address;
-  }
-
-  if (price) {
-    card.querySelector(`.popup__text--price`).textContent = price + ` ₽/ночь`;
-  }
-
-  if (type) {
-    card.querySelector(`.popup__type`).textContent = MAP_HOUSING_TYPES_TO_RU[type];
-  }
-
-  if (rooms && guests) {
-    if (rooms > Rooms.ONE_ROOM && rooms < Rooms.FIVE_ROOMS && guests > Guests.ONE_GUEST) {
-      card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнаты для ` + guests + ` гостей`;
-    }
-    if (rooms === Rooms.ONE_ROOM && guests === Guests.ONE_GUEST) {
-      card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комната для ` + guests + ` гостя`;
-    }
-    if (rooms >= Rooms.ONE_ROOM) {
-      card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнат для ` + guests + ` гостей`;
+  if (`offer` in ad) {
+    if (title) {
+      card.querySelector(`.popup__title`).textContent = title;
     }
 
+    if (address) {
+      card.querySelector(`.popup__text--address`).textContent = address;
+    }
+
+    if (price) {
+      card.querySelector(`.popup__text--price`).textContent = price + ` ₽/ночь`;
+    }
+
+    if (type) {
+      card.querySelector(`.popup__type`).textContent = MAP_HOUSING_TYPES_TO_RU[type];
+    }
+
+    if (guests && rooms) {
+      if (rooms > Rooms.ONE_ROOM && rooms < Rooms.FIVE_ROOMS && guests > Guests.ONE_GUEST) {
+        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнаты для ` + guests + ` гостей`;
+      }
+      if (rooms === Rooms.ONE_ROOM && guests === Guests.ONE_GUEST) {
+        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комната для ` + guests + ` гостя`;
+      }
+      if (rooms >= Rooms.ONE_ROOM) {
+        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнат для ` + guests + ` гостей`;
+      }
+    }
+
+    if (checkin && checkout) {
+      card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + checkin + ` ` + `выезд до ` + checkout;
+    }
+
+    if (description) {
+      card.querySelector(`.popup__description`).textContent = description;
+    }
+    if (photos) {
+      insertPhotosNodes(photos, card);
+    }
+
+    if (features) {
+      insertFeauturesNodes(ad, card);
+    }
   }
 
-  if (checkin && checkout) {
-    card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + checkin + ` ` + `выезд до ` + checkout;
+  if (`author` in ad) {
+    if (avatar) {
+      card.querySelector(`.popup__avatar`).src = avatar;
+    }
   }
 
-  if (description) {
-    card.querySelector(`.popup__description`).textContent = description;
-  }
-
-  if (avatar) {
-    card.querySelector(`.popup__avatar`).src = avatar;
-  }
-
-  if (photos) {
-    insertPhotosNodes(photos, card);
-  }
-
-  if (features) {
-    insertFeauturesNodes(ad, card);
-  }
 
   card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
   document.addEventListener(`keydown`, onCardEscPress);
@@ -680,19 +685,18 @@ const filterElement = (select, optionValue, ad) => {
 };
 
 const filterAd = (ad) => {
-  debugger;
   return (filterElement(houseTypeSelect, FiltersValue.TYPE, ad.offer)) &&
     (filterElement(houseRoomSelect, FiltersValue.ROOM, ad.offer)) &&
     (filterElement(houseGuestSelect, FiltersValue.GUEST, ad.offer)) &&
     checkFeatures(ad.offer.features) && checkPrice(ad, ad.offer.price);
 };
 
-const getFilteredAds = function (ad) {
-  let similiarAds = ad.filter(filterAd);
+const getFilteredAds = (ad) => {
+  const similiarAds = ad.filter(filterAd);
   return similiarAds;
 };
 
-const updatePins = function (offers) {
+const updatePins = (offers) => {
   const pins = getFilteredAds(offers);
   window.pin.renderPinElements(pins);
 };
@@ -742,6 +746,7 @@ const checkedFeaturesItems = adForm.querySelectorAll(`.feature__checkbox`);
 const resetButton = adForm.querySelector(`.ad-form__reset`);
 const submitButton = adForm.querySelector(`.ad-form__submit`);
 const textArea = adForm.querySelector(`textarea`);
+const capacitySelect = document.querySelector(`#capacity`);
 
 
 const resetCheckboxes = (checkboxes) => {
@@ -754,6 +759,7 @@ const resetCheckboxes = (checkboxes) => {
 
 const resetForm = () => {
   adForm.reset();
+  capacitySelect.style.border = ``;
   resetCheckboxes(checkedFeaturesItems);
 };
 
@@ -793,7 +799,7 @@ const onErrorEscPress = (key) => {
 
 const showErrorMessage = () => {
   const message = error.cloneNode(true);
-  message.querySelector(`.error`).addEventListener(`click`, closeErrorMessage);
+  message.querySelector(`.error`).addEventListener(`click`, onErrorMessageClick);
   main.appendChild(message);
 };
 
@@ -819,7 +825,7 @@ const closeSuccessMessage = () => {
 
 const showSuccessMessage = () => {
   const message = success.cloneNode(true);
-  message.querySelector(`.success`).addEventListener(`click`, onErrorMessageClick);
+  message.querySelector(`.success`).addEventListener(`click`, onSuccessMessageClick);
   main.appendChild(message);
 };
 
@@ -989,7 +995,7 @@ const disableMap = () => {
   mainPin.addEventListener(`keydown`, onKeyDown);
   mapFiltersForm.classList.add(`map__filters--disabled`);
   adForm.classList.add(`ad-form--disabled`);
-  window.move.defaultCoords();
+  window.move.getDefaultCoords();
   window.move.setDefaultPosition();
 };
 

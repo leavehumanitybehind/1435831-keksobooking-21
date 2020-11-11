@@ -392,6 +392,7 @@ const PhotoSize = {
 };
 
 const Rooms = {
+  ZERO_ROOM: 0,
   ONE_ROOM: 1,
   FIVE_ROOMS: 5
 };
@@ -472,49 +473,39 @@ const renderCard = (ad) => {
     }
   } = ad;
 
-  if (`offer` in ad) {
-    if (title) {
-      card.querySelector(`.popup__title`).textContent = title;
-    }
+  if (title) {
+    card.querySelector(`.popup__title`).textContent = title;
+  }
 
-    if (address) {
-      card.querySelector(`.popup__text--address`).textContent = address;
-    }
+  if (address) {
+    card.querySelector(`.popup__text--address`).textContent = address;
+  }
 
-    if (price) {
-      card.querySelector(`.popup__text--price`).textContent = price + ` ₽/ночь`;
-    }
+  if (price) {
+    card.querySelector(`.popup__text--price`).textContent = price + ` ₽/ночь`;
+  }
 
-    if (type) {
-      card.querySelector(`.popup__type`).textContent = MAP_HOUSING_TYPES_TO_RU[type];
-    }
+  if (type) {
+    card.querySelector(`.popup__type`).textContent = MAP_HOUSING_TYPES_TO_RU[type];
+  }
 
-    if (guests && rooms) {
-      if (rooms > Rooms.ONE_ROOM && rooms < Rooms.FIVE_ROOMS && guests > Guests.ONE_GUEST) {
-        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнаты для ` + guests + ` гостей`;
-      }
-      if (rooms === Rooms.ONE_ROOM && guests === Guests.ONE_GUEST) {
-        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комната для ` + guests + ` гостя`;
-      }
-      if (rooms >= Rooms.ONE_ROOM) {
-        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнат для ` + guests + ` гостей`;
-      }
-    }
+  if (`guests` in ad.offer || `rooms` in ad.offer) {
+      card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнаты для ` + guests + ` гостей`;
+  }
 
-    if (checkin && checkout) {
-      card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + checkin + ` ` + `выезд до ` + checkout;
-    }
+  if (checkin && checkout) {
+    card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + checkin + ` ` + `выезд до ` + checkout;
+  }
 
-    if (description) {
-      card.querySelector(`.popup__description`).textContent = description;
-    }
-    if (photos) {
-      insertPhotosNodes(photos, card);
-    }
+  if (description) {
+    card.querySelector(`.popup__description`).textContent = description;
+  }
+  if (photos) {
+    insertPhotosNodes(photos, card);
+  }
 
-    if (features) {
-      insertFeauturesNodes(ad, card);
-    }
+  if (features) {
+    insertFeauturesNodes(ad, card);
   }
 
   if (`author` in ad) {

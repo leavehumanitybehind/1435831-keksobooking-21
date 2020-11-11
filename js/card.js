@@ -14,12 +14,13 @@ const PhotoSize = {
   HEIGHT: 40
 };
 
-const Rooms = {
+const Room = {
+  ZERO_ROOM: 0,
   ONE_ROOM: 1,
   FIVE_ROOMS: 5
 };
 
-const Guests = {
+const Guest = {
   ONE_GUEST: 1
 };
 
@@ -113,13 +114,13 @@ const renderCard = (ad) => {
     }
 
     if (guests && rooms) {
-      if (rooms > Rooms.ONE_ROOM && rooms < Rooms.FIVE_ROOMS && guests > Guests.ONE_GUEST) {
+      if (rooms > Room.ONE_ROOM && rooms < Room.FIVE_ROOMS && guests > Guest.ONE_GUEST) {
         card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнаты для ` + guests + ` гостей`;
       }
-      if (rooms === Rooms.ONE_ROOM && guests === Guests.ONE_GUEST) {
+      if (rooms === Room.ONE_ROOM && guests === Guest.ONE_GUEST) {
         card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комната для ` + guests + ` гостя`;
       }
-      if (rooms >= Rooms.ONE_ROOM) {
+      if (rooms === Room.ZERO_ROOM && rooms >= Room.FIVE_ROOMS) {
         card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнат для ` + guests + ` гостей`;
       }
     }

@@ -1,55 +1,50 @@
 "use strict";
 
-(function () {
-  const URL = `https://21.javascript.pages.academy/keksobooking/data`;
-  const TIMEOUT_IN_MS = 10000;
+const UrlAddress = {
+  LOAD: `https://21.javascript.pages.academy/keksobooking/data`,
+  UPLOAD: `https://21.javascript.pages.academy/keksobooking/`
+};
 
-  const load = function (onSuccess, onError) {
-    let xhr = new XMLHttpRequest();
-    xhr.responseType = `json`;
+const CODE_STATUS_OK = 200;
+const TIMEOUT_IN_MS = 10000;
 
-    xhr.addEventListener(`load`, function () {
-      let error;
-      switch (xhr.status) {
-        case 200:
-          onSuccess(xhr.response);
-          break;
+const getXhr = (onSuccess, onError) => {
+  const xhr = new XMLHttpRequest();
+  xhr.responseType = `json`;
 
-        case 400:
-          error = `Неверный запрос`;
-          break;
-        case 401:
-          error = `Пользователь не авторизован`;
-          break;
-        case 404:
-          error = `Ничего не найдено`;
-          break;
+  xhr.addEventListener(`load`, () => {
+    if (xhr.status === CODE_STATUS_OK) {
+      onSuccess(xhr.response);
+      return;
+    }
+    onError(`Статус ошибки: ` + xhr.status + ` ` + xhr.statusText);
+  });
+  xhr.addEventListener(`error`, () => {
+    onError(`Произошла ошибка соединения. Пожалуйста обновите страницу`);
+  });
+  xhr.addEventListener(`timeout`, () => {
+    onError(`Запрос не успел выполниться за ` + xhr.timeout + ` мс. ` + ` Пожалуйста обновите страницу`);
+  });
 
-        default:
-          error = `Cтатус ответа: : ` + xhr.status + ` ` + xhr.statusText;
-      }
+  xhr.timeout = TIMEOUT_IN_MS;
 
-      if (error) {
-        onError(error);
-      }
-    });
+  return xhr;
+};
 
-    xhr.addEventListener(`error`, function () {
-      onError(`Произошла ошибка соединения`);
-    });
-    xhr.addEventListener(`timeout`, function () {
-      onError(`Запрос не успел выполниться за ` + xhr.timeout + `мс`);
-    });
+const upload = (onSuccess, onError, data) => {
+  const xhr = getXhr(onSuccess, onError);
+  xhr.open(`POST`, UrlAddress.UPLOAD);
+  xhr.send(data);
+};
 
-    xhr.timeout = TIMEOUT_IN_MS;
+const load = (onSuccess, onError) => {
+  const xhr = getXhr(onSuccess, onError);
+  xhr.open(`GET`, UrlAddress.LOAD);
+  xhr.send();
+};
 
-    xhr.open(`GET`, URL);
-    xhr.send();
-  };
+window.backend = {
+  load,
+  upload
+};
 
-  window.backend = {
-    load: load
-  };
-
-
-})();

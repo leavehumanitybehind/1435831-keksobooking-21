@@ -1,31 +1,38 @@
-/* eslint-disable object-shorthand */
 "use strict";
 
-(function () {
+const KeyCode = {
+  ENTER: `Enter`,
+  ESCAPE: `Escape`,
+};
 
-  const KeyCode = {
-    ENTER: `Enter`,
-    ESCAPE: `Escape`,
-    MOUSE_LEFT_CLICK: 1
-  };
+const isEnterKeyPress = (key) => {
+  return key === KeyCode.ENTER;
+};
 
-  const getRandomNumber = function (min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-  };
+const isEscKeyPress = (key) => {
+  return key === KeyCode.ESCAPE;
+};
 
-  const getRandomArrayValue = function (items) {
-    return items[Math.floor(items.length * Math.random())];
-  };
+const createErrorMessage = (message) => {
+  const node = document.createElement(`div`);
+  node.style = `z-index: 100; margin:auto; text-align: center; background-color: rgba(0,0,0, 0.4);`;
+  node.style.position = `absolute`;
+  node.style.left = 0;
+  node.style.right = 0;
+  node.style.width = `100%`;
+  node.style.height = `100%`;
+  node.style.paddingTop = `300px`;
+  node.style.fontSize = `60px`;
+  node.style.fontWeight = `bold`;
+  node.style.color = `white`;
 
-  const isEscKeyCode = function (evt) {
-    return evt.KeyCode === KeyCode.ESCAPE;
-  };
+  node.textContent = message;
+  document.body.insertAdjacentElement(`afterbegin`, node);
+};
 
-  window.util = {
-    getRandomNumber: getRandomNumber,
-    getRandomArrayValue: getRandomArrayValue,
-    isEscKeyCode: isEscKeyCode,
-    KeyCode: KeyCode
-  };
+window.util = {
+  isEnterKeyPress,
+  isEscKeyPress,
+  createErrorMessage
+};
 
-})();

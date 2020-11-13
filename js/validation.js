@@ -1,16 +1,7 @@
 "use strict";
 
 const ERROR_STYLE = `2px dashed #ff0000`;
-const adForm = document.querySelector(`.ad-form`);
-const roomNumberSelect = document.querySelector(`#room_number`);
-const capacitySelect = document.querySelector(`#capacity`);
-const housingSelect = adForm.querySelector(`#type`);
-const priceInput = adForm.querySelector(`#price`);
-const timeinSelect = adForm.querySelector(`#timein`);
-const timeoutSelect = adForm.querySelector(`#timeout`);
-const inputs = adForm.querySelectorAll(`input`);
-let roomsNumber = roomNumberSelect.value;
-let capacityNumber = capacitySelect.value;
+const MAX_PRICE = 1000000;
 
 const VALIDITY_TEXT = {
   1: `1 комната - для 1 гостя`,
@@ -25,7 +16,17 @@ const MIN_PRICE = {
   house: 5000,
   palace: 10000
 };
-const MAX_PRICE = 1000000;
+
+const adForm = document.querySelector(`.ad-form`);
+const roomNumberSelect = document.querySelector(`#room_number`);
+const capacitySelect = document.querySelector(`#capacity`);
+const housingSelect = adForm.querySelector(`#type`);
+const priceInput = adForm.querySelector(`#price`);
+const timeinSelect = adForm.querySelector(`#timein`);
+const timeoutSelect = adForm.querySelector(`#timeout`);
+const inputs = adForm.querySelectorAll(`input`);
+let roomsNumber = roomNumberSelect.value;
+let capacityNumber = capacitySelect.value;
 
 const onHousingTypeChange = () => {
   priceInput.min = MIN_PRICE[housingSelect.value];

@@ -79,7 +79,7 @@ const onSuccessEscPress = (key) => {
 };
 
 const onErrorMessageClick = () => {
-  closeSuccessMessage();
+  closeErrorMessage();
 };
 
 const onSuccessMessageClick = () => {

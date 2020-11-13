@@ -1,16 +1,16 @@
 "use strict";
 
+const MAX_PINS = 5;
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 const pinsContainer = document.querySelector(`.map__pins`);
 let ads = [];
-const MAX_PINS = 5;
 
 const PinSize = {
   WIDTH: 50,
   HEIGHT: 70
 };
 
-const renderPin = (ad) => {
+const createPin = (ad) => {
   const {
     offer: {
       title
@@ -53,12 +53,12 @@ const activatePin = (pin, ad) => {
   });
 };
 
-const renderPinElements = (offers) => {
+const renderPins = (offers) => {
   const fragment = document.createDocumentFragment();
   ads = offers;
   const adsNumber = ads.length > MAX_PINS ? MAX_PINS : ads.length;
   for (let i = 0; i < adsNumber; i++) {
-    const pinElement = renderPin(ads[i]);
+    const pinElement = createPin(ads[i]);
     fragment.append(pinElement);
     activatePin(pinElement, ads[i]);
   }
@@ -68,10 +68,9 @@ const renderPinElements = (offers) => {
 
 window.pin = {
   Size: PinSize,
-  render: renderPin,
+  render: renderPins,
   remove: removePins,
   activate: activatePin,
-  renderPinElements,
   ads,
 };
 

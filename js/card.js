@@ -26,12 +26,12 @@ const Guest = {
 
 const createFeatures = (ad) => {
   const featuresFragment = document.createDocumentFragment();
-  for (let i = 0; i < ad.offer.features.length; i++) {
+  ad.offer.features.forEach((feature) => {
     const newFeature = document.createElement(`li`);
     newFeature.classList.add(`popup__feature`);
-    newFeature.classList.add(`popup__feature--` + ad.offer.features[i]);
+    newFeature.classList.add(`popup__feature--` + feature);
     featuresFragment.appendChild(newFeature);
-  }
+  });
   return featuresFragment;
 };
 
@@ -68,6 +68,10 @@ const disableCard = () => {
   }
 };
 
+const onPopupButtonCloseClick = () => {
+  disableCard();
+};
+
 const onCardEscPress = (evt) => {
   if (window.util.isEscKeyPress(evt.key)) {
     disableCard();
@@ -96,59 +100,53 @@ const renderCard = (ad) => {
     }
   } = ad;
 
-  if (`offer` in ad) {
-    if (title) {
-      card.querySelector(`.popup__title`).textContent = title;
-    }
+  if (`title` in ad.offer) {
+    card.querySelector(`.popup__title`).textContent = title;
+  }
 
-    if (address) {
-      card.querySelector(`.popup__text--address`).textContent = address;
-    }
+  if (`address` in ad.offer) {
+    card.querySelector(`.popup__text--address`).textContent = address;
+  }
 
-    if (price) {
-      card.querySelector(`.popup__text--price`).textContent = price + ` ₽/ночь`;
-    }
+  if (`price` in ad.offer) {
+    card.querySelector(`.popup__text--price`).textContent = price + ` ₽/ночь`;
+  }
 
-    if (type) {
-      card.querySelector(`.popup__type`).textContent = MAP_HOUSING_TYPES_TO_RU[type];
-    }
+  if (`type` in ad.offer) {
+    card.querySelector(`.popup__type`).textContent = MAP_HOUSING_TYPES_TO_RU[type];
+  }
 
-    if (guests && rooms) {
-      if (rooms > Room.ONE_ROOM && rooms < Room.FIVE_ROOMS && guests > Guest.ONE_GUEST) {
-        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнаты для ` + guests + ` гостей`;
-      }
-      if (rooms === Room.ONE_ROOM && guests === Guest.ONE_GUEST) {
-        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комната для ` + guests + ` гостя`;
-      }
-      if (rooms === Room.ZERO_ROOM && rooms >= Room.FIVE_ROOMS) {
-        card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнат для ` + guests + ` гостей`;
-      }
+  if (`rooms` in ad.offer && `guests` in ad.offer) {
+    if (rooms > Room.ONE_ROOM && rooms < Room.FIVE_ROOMS && guests >= 0) {
+      card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнаты для ` + guests + ` гостей`;
     }
-
-    if (checkin && checkout) {
-      card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + checkin + ` ` + `выезд до ` + checkout;
+    if (rooms === Room.ONE_ROOM && guests === Guest.ONE_GUEST) {
+      card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комната для ` + guests + ` гостя`;
     }
-
-    if (description) {
-      card.querySelector(`.popup__description`).textContent = description;
-    }
-    if (photos) {
-      insertPhotosNodes(photos, card);
-    }
-
-    if (features) {
-      insertFeauturesNodes(ad, card);
+    if (rooms === Room.ZERO_ROOM || rooms >= Room.FIVE_ROOM || guests >= 0) {
+      card.querySelector(`.popup__text--capacity`).textContent = rooms + ` комнат для ` + guests + ` гостей`;
     }
   }
 
-  if (`author` in ad) {
-    if (avatar) {
-      card.querySelector(`.popup__avatar`).src = avatar;
-    }
+  if (`checkin` in ad.offer && `checkout` in ad.offer) {
+    card.querySelector(`.popup__text--time`).textContent = `Заезд после ` + checkin + ` ` + `выезд до ` + checkout;
   }
 
+  if (`description` in ad.offer) {
+    card.querySelector(`.popup__description`).textContent = description;
+  }
+  if (photos) {
+    insertPhotosNodes(photos, card);
+  }
 
-  card.querySelector(`.popup__close`).addEventListener(`click`, disableCard);
+  if (features) {
+    insertFeauturesNodes(ad, card);
+  }
+
+  if (`avatar` in ad.author) {
+    card.querySelector(`.popup__avatar`).src = avatar;
+  }
+  card.querySelector(`.popup__close`).addEventListener(`click`, onPopupButtonCloseClick);
   document.addEventListener(`keydown`, onCardEscPress);
   return card;
 };

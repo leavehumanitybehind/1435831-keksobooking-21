@@ -1,14 +1,14 @@
 "use strict";
 
+const CODE_STATUS_OK = 200;
+const TIMEOUT_IN_MS = 10000;
+
 const UrlAddress = {
   LOAD: `https://21.javascript.pages.academy/keksobooking/data`,
   UPLOAD: `https://21.javascript.pages.academy/keksobooking/`
 };
 
-const CODE_STATUS_OK = 200;
-const TIMEOUT_IN_MS = 10000;
-
-const getXhr = (onSuccess, onError) => {
+const getXhr = (method, url, onSuccess, onError, data) => {
   const xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
@@ -27,20 +27,16 @@ const getXhr = (onSuccess, onError) => {
   });
 
   xhr.timeout = TIMEOUT_IN_MS;
-
-  return xhr;
+  xhr.open(method, url);
+  xhr.send(data ? data : ``);
 };
 
 const upload = (onSuccess, onError, data) => {
-  const xhr = getXhr(onSuccess, onError);
-  xhr.open(`POST`, UrlAddress.UPLOAD);
-  xhr.send(data);
+  return getXhr(`POST`, UrlAddress.UPLOAD, onSuccess, onError, data);
 };
 
 const load = (onSuccess, onError) => {
-  const xhr = getXhr(onSuccess, onError);
-  xhr.open(`GET`, UrlAddress.LOAD);
-  xhr.send();
+  return getXhr(`GET`, UrlAddress.LOAD, onSuccess, onError);
 };
 
 window.backend = {

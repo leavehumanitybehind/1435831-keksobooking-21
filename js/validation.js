@@ -1,5 +1,6 @@
 "use strict";
 
+const ERROR_STYLE = `2px dashed #ff0000`;
 const adForm = document.querySelector(`.ad-form`);
 const roomNumberSelect = document.querySelector(`#room_number`);
 const capacitySelect = document.querySelector(`#capacity`);
@@ -10,7 +11,6 @@ const timeoutSelect = adForm.querySelector(`#timeout`);
 const inputs = adForm.querySelectorAll(`input`);
 let roomsNumber = roomNumberSelect.value;
 let capacityNumber = capacitySelect.value;
-const ERROR_STYLE = `2px dashed #ff0000`;
 
 const VALIDITY_TEXT = {
   1: `1 комната - для 1 гостя`,
@@ -103,7 +103,7 @@ const removeChangeListeners = () => {
   timeoutSelect.removeEventListener(`change`, onTimeinChange);
 };
 
-const checkValidity = () => {
+const onInputCheckValidity = () => {
   inputs.forEach((input) => {
     adForm.checkValidity();
     input.addEventListener(`invalid`, () => {
@@ -116,5 +116,5 @@ const checkValidity = () => {
 window.validation = {
   change: addChangeListeners,
   remove: removeChangeListeners,
-  check: checkValidity
+  onInputCheck: onInputCheckValidity
 };

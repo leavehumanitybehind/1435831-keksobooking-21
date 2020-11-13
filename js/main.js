@@ -1,16 +1,16 @@
 'use strict';
 
+const MOUSE_LEFT_CLICK = 1;
 const mainPin = document.querySelector(`.map__pin--main`);
 const map = document.querySelector(`.map`);
 const mapFiltersForm = document.querySelector(`.map__filters`);
 const adForm = document.querySelector(`.ad-form`);
 const resetButton = adForm.querySelector(`.ad-form__reset`);
-const MOUSE_LEFT_CLICK = 1;
 const submitButton = adForm.querySelector(`.ad-form__submit`);
 
 const onSuccessLoad = (data) => {
   window.pin.ads = data;
-  window.pin.renderPinElements(window.pin.ads);
+  window.pin.render(window.pin.ads);
 };
 
 const onErrorLoad = (errorMessage) => {
@@ -61,7 +61,7 @@ const addListeners = () => {
   window.validation.change();
   window.photo.addListeners();
   adForm.addEventListener(`submit`, onFormSubmit);
-  submitButton.addEventListener(`click`, window.validation.check);
+  submitButton.addEventListener(`click`, window.validation.onInputCheck);
   resetButton.addEventListener(`click`, onResetButtonClick);
 };
 
@@ -70,7 +70,7 @@ const removeListeners = () => {
   window.photo.removeListeners();
   adForm.removeEventListener(`submit`, onFormSubmit);
   resetButton.removeEventListener(`click`, onResetButtonClick);
-  submitButton.removeEventListener(`click`, window.validation.check);
+  submitButton.removeEventListener(`click`, window.validation.onInputCheck);
 };
 
 const onMouseDown = (evt) => {

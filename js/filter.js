@@ -65,7 +65,7 @@ const getFilteredAds = (ad) => {
 
 const updatePins = (offers) => {
   const pins = getFilteredAds(offers);
-  window.pin.renderPinElements(pins);
+  window.pin.render(pins);
 };
 
 const addChangeListeners = () => {
